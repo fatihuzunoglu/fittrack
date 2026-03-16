@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fatih Fit</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fatih Fit">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-startup-image" href="icon-512.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:#111827;
+  display:flex;justify-content:center;align-items:center;min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+}
+
+/* ═══ Phone Shell ═══ */
+.phone{
+  width:393px;height:852px;
+  background:#f2f2f7;border-radius:52px;
+  overflow:hidden;position:relative;
+  display:flex;flex-direction:column;
+  box-shadow:0 60px 130px rgba(0,0,0,.8),inset 0 0 0 1.5px rgba(255,255,255,.12);
+}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:126px;height:37px;background:#111;border-radius:0 0 24px 24px;z-index:200}
+
+/* ═══ Status Bar ═══ */
+.status-bar{
+  height:54px;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 28px 10px;
+  font-size:12px;font-weight:600;color:#1c1c1e;flex-shrink:0;z-index:10;
+  background:transparent;
+}
+.s-icons{display:flex;gap:5px;align-items:center}
+
+/* ═══ Scroll Content ═══ */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative}
+.content::-webkit-scrollbar{display:none}
+
+/* ═══ Panels ═══ */
+.panel{display:none;padding-bottom:100px}
+.panel.active{display:block}
+
+/* ═══ Base Atoms ═══ */
+.card{background:#fff;border-radius:20px;margin:0 16px 12px;padding:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)}
+.lbl{font-size:12px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:.6px}
+.divider{height:1px;background:#f2f2f7;margin:12px 0}
+
+/* Progress rows */
+.pr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.pr-name{font-size:15px;font-weight:600;color:#1c1c1e}
+.pr-right{display:flex;align-items:center;gap:8px}
+.pr-txt{font-size:13px;color:#6d6d72;font-weight:500}
+.pr-pct{font-size:14px;font-weight:700;min-width:36px;text-align:right}
+.pr-track{height:7px;background:#e5e5ea;border-radius:99px;margin-bottom:14px;
+  position:relative;overflow:visible}
+.pr-track:last-of-type{margin-bottom:0}
+.pr-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.pr-marker{position:absolute;top:-5px;width:2px;height:17px;background:#c7c7cc;border-radius:1px}
+/* color tokens */
+.tk-blue{background:#4a90d9}
+.tk-red{background:#ff6b6b}
+.tk-amber{background:#f5a623}
+.tk-green{background:#34c759}
+.tk-teal{background:#5ac8fa}
+
+/* ═══════════════════════════════
+   DASHBOARD
+═══════════════════════════════ */
+.page-header{padding:16px 20px 4px;display:flex;justify-content:space-between;align-items:center}
+.ph-greet{font-size:13px;color:#8e8e93;font-weight:500}
+.ph-name{font-size:26px;font-weight:700;color:#1c1c1e;letter-spacing:-.5px;margin-top:2px}
+.notif{width:36px;height:36px;background:#fff;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;position:relative}
+.badge{background:#ff3b30;color:#fff;font-size:9px;font-weight:700;
+  width:15px;height:15px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;position:absolute;top:-3px;right:-3px}
+
+/* Calories Summary Card */
+.cal-card{background:#fff;border-radius:20px;margin:10px 16px 12px;padding:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.cal-inner{display:flex;align-items:center;gap:18px}
+.ring-wrap{position:relative;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-num{font-size:19px;font-weight:700;color:#1c1c1e;line-height:1}
+.ring-sub{font-size:10px;color:#8e8e93;margin-top:2px;font-weight:500}
+.cal-macros{flex:1;display:flex;flex-direction:column;gap:0}
+.cm-row{margin-bottom:6px}
+.cm-row:last-child{margin-bottom:0}
+.cm-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.cm-name{font-size:13px;font-weight:600;color:#1c1c1e}
+.cm-val{font-size:11px;color:#8e8e93;font-weight:500}
+.cm-bar{height:5px;background:#e5e5ea;border-radius:99px}
+.cm-fill{height:100%;border-radius:99px}
+/* Calorie bottom row */
+.cal-bottom{display:flex;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid #f2f2f7}
+.cbs{text-align:center}
+.cbs-num{font-size:16px;font-weight:700;color:#1c1c1e}
+.cbs-lbl{font-size:10px;color:#8e8e93;margin-top:1px}
+
+/* Today's Workout Card (reference style) */
+.workout-card{background:#fff;border-radius:20px;margin:0 16px 12px;padding:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.wc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.wc-title{font-size:17px;font-weight:700;color:#1c1c1e}
+.wc-arrow{font-size:16px;color:#c7c7cc}
+.wc-next{font-size:15px;color:#3c3c43;margin-bottom:14px;font-weight:500}
+.wc-next span{font-weight:700;color:#1c1c1e}
+.wc-btn{width:100%;background:#1c1c1e;color:#fff;border:none;border-radius:12px;
+  padding:13px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.1px}
+.wc-btn:active{opacity:.85}
+
+/* Body Composition Card */
+.body-card{background:#fff;border-radius:20px;margin:0 16px 12px;padding:18px;
+  cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:transform .15s}
+.body-card:active{transform:scale(.99)}
+.bc-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.bc-metrics{display:flex;gap:0;margin-bottom:12px}
+.bc-m{flex:1;text-align:center}
+.bc-m+.bc-m{border-left:1px solid #f2f2f7}
+.bc-big{font-size:30px;font-weight:700;color:#1c1c1e;letter-spacing:-1px;line-height:1.1}
+.bc-unit-txt{font-size:12px;color:#8e8e93;font-weight:500;margin-top:3px}
+.bc-delta{font-size:11px;font-weight:600;margin-top:2px}
+.bc-graph-preview{height:44px;position:relative;margin-bottom:6px}
+.bc-graph-preview svg{width:100%;height:44px}
+.bc-hint{font-size:12px;color:#8e8e93;text-align:center;margin-top:4px}
+
+/* ═══════════════════════════════
+   MEASUREMENT MODAL
+═══════════════════════════════ */
+.modal-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:300;
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{
+  background:#f2f2f7;border-radius:28px 28px 0 0;width:100%;max-height:88%;
+  overflow-y:auto;scrollbar-width:none;
+  transform:translateY(100%);transition:transform .38s cubic-bezier(.32,1,.23,1);
+}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:#d1d1d6;border-radius:2px;margin:14px auto 0}
+.modal-close{width:28px;height:28px;background:#e5e5ea;border-radius:50%;
+  border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* Metric selector pills */
+.metric-scroll{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
+.metric-scroll::-webkit-scrollbar{display:none}
+.metric-pill{flex-shrink:0;padding:7px 14px;border-radius:10px;border:none;
+  font-size:13px;font-weight:600;background:#fff;color:#8e8e93;cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.metric-pill.active{background:#1c1c1e;color:#fff}
+
+/* Chart */
+.chart-area{background:#fff;border-radius:16px;margin:0 16px 12px;padding:16px}
+.chart-svg{width:100%;height:130px}
+.chart-filter{display:flex;gap:6px;margin-bottom:12px}
+.cf-btn{flex:1;padding:7px;border-radius:9px;border:none;background:#f2f2f7;
+  font-size:12px;font-weight:600;color:#8e8e93;cursor:pointer}
+.cf-btn.active{background:#4a90d9;color:#fff}
+
+/* Log measurement */
+.log-meas{background:#fff;border-radius:16px;margin:0 16px 16px;padding:14px}
+.lm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.lm-box{background:#f9f9fb;border-radius:12px;padding:10px}
+.lm-lbl{font-size:10px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.lm-inp{border:none;background:transparent;font-size:20px;font-weight:700;
+  color:#1c1c1e;width:100%;outline:none}
+.lm-unit{font-size:11px;color:#8e8e93;margin-top:1px}
+.lm-save{width:100%;background:#4a90d9;color:#fff;border:none;border-radius:12px;
+  padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px}
+
+/* ═══════════════════════════════
+   NUTRITION
+═══════════════════════════════ */
+.nutr-header{padding:16px 20px 8px;display:flex;justify-content:space-between;align-items:baseline}
+.nutr-title{font-size:28px;font-weight:700;color:#1c1c1e;letter-spacing:-.5px}
+.nutr-date{font-size:13px;color:#8e8e93;font-weight:500}
+
+.time-strip{display:flex;gap:0;padding:0 16px 8px;border-bottom:0}
+.ts-btn{flex:1;padding:8px 2px;border:none;background:none;font-size:13px;
+  font-weight:500;color:#8e8e93;cursor:pointer;position:relative;text-align:center}
+.ts-btn.active{color:#1c1c1e;font-weight:700}
+.ts-btn.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;
+  height:2px;background:#1c1c1e;border-radius:1px}
+
+.nutr-section{font-size:19px;font-weight:700;color:#1c1c1e;margin:4px 0 10px}
+
+/* Today's meals */
+.meal-item{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;background:#f9f9fb;border-radius:12px;margin-bottom:8px}
+.mi-left{}
+.mi-name{font-size:14px;font-weight:600;color:#1c1c1e}
+.mi-sub{font-size:11px;color:#8e8e93;margin-top:1px}
+.mi-right{text-align:right}
+.mi-kcal{font-size:15px;font-weight:700;color:#1c1c1e}
+.mi-macros{font-size:10px;color:#8e8e93;margin-top:1px}
+.mi-empty{border:1.5px dashed #e5e5ea;background:transparent}
+.mi-empty .mi-name{color:#c7c7cc}
+
+/* Floating + button */
+.fab{
+  position:fixed;bottom:90px;right:calc(50% - 196px + 16px);
+  width:52px;height:52px;border-radius:26px;
+  background:#1c1c1e;color:#fff;border:none;
+  font-size:24px;font-weight:300;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;
+}
+/* Since we're in a phone container, use absolute instead */
+.fab-abs{
+  position:absolute;bottom:80px;right:16px;
+  width:52px;height:52px;border-radius:26px;
+  background:#1c1c1e;color:#fff;border:none;
+  font-size:26px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;line-height:1;
+}
+
+/* ═══════════════════════════════
+   WORKOUT
+═══════════════════════════════ */
+.workout-header{padding:16px 20px 8px;display:flex;justify-content:space-between;align-items:center}
+.wh-left h1{font-size:28px;font-weight:700;color:#1c1c1e;letter-spacing:-.5px}
+.wh-badge{background:#e8f2fe;color:#4a90d9;border-radius:8px;padding:3px 8px;
+  font-size:11px;font-weight:600;margin-top:3px;display:inline-block}
+.wh-btn{background:#1c1c1e;color:#fff;border:none;border-radius:10px;padding:8px 14px;
+  font-size:13px;font-weight:600;cursor:pointer}
+
+/* Program day tabs */
+.prog-strip{display:flex;border-bottom:1.5px solid #e5e5ea;margin:0 16px 12px;gap:0}
+.ps-btn{flex:1;padding:9px 4px;border:none;background:none;font-size:13px;
+  font-weight:600;color:#8e8e93;cursor:pointer;position:relative;text-align:center}
+.ps-btn.active{color:#1c1c1e}
+.ps-btn.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;
+  height:2px;background:#1c1c1e;border-radius:1px}
+
+/* Exercise cards */
+.ex-card{background:#fff;border-radius:18px;margin:0 16px 10px;
+  overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ex-head{display:flex;align-items:center;padding:14px 16px;gap:12px}
+.ex-icon-box{width:40px;height:40px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ex-info{flex:1}
+.ex-name-txt{font-size:15px;font-weight:700;color:#1c1c1e}
+.ex-meta-txt{font-size:12px;color:#8e8e93;margin-top:1px}
+.swap-btn{display:flex;align-items:center;gap:4px;background:#f2f2f7;
+  border-radius:8px;padding:5px 9px;border:none;cursor:pointer;
+  font-size:12px;font-weight:600;color:#3c3c43}
+.swap-btn svg{width:12px;height:12px}
+
+/* Sets table */
+.sets-tbl{border-top:1px solid #f2f2f7}
+.st-hdr{display:grid;grid-template-columns:28px 1fr 1fr 1fr;
+  padding:6px 16px;gap:4px}
+.sth{font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;
+  letter-spacing:.3px;text-align:center}
+.sth:first-child{text-align:left}
+.st-row{display:grid;grid-template-columns:28px 1fr 1fr 1fr;
+  padding:8px 16px;border-top:1px solid #f2f2f7;gap:4px;align-items:center}
+.st-num{font-size:13px;font-weight:600;color:#8e8e93}
+.st-prev{font-size:13px;color:#c7c7cc;text-align:center;font-weight:500}
+.st-inp{width:100%;border:none;background:#f2f2f7;border-radius:8px;
+  padding:5px 4px;text-align:center;font-size:13px;font-weight:700;
+  color:#1c1c1e;outline:none}
+.st-inp:focus{background:#e8f2fe;color:#4a90d9}
+
+/* Running tab */
+.run-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.run-box{background:#f9f9fb;border-radius:14px;padding:14px}
+.rb-lbl{font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:6px}
+.rb-inp{border:none;background:transparent;font-size:24px;font-weight:700;
+  color:#1c1c1e;width:100%;outline:none}
+.rb-unit{font-size:12px;color:#8e8e93;margin-top:2px}
+.pace-result{background:linear-gradient(135deg,#1c1c2e,#2c2c4e);border-radius:14px;
+  padding:16px;text-align:center;margin-top:10px}
+.pr-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.6);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.pr-pace{font-size:36px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.pr-pace-unit{font-size:14px;color:rgba(255,255,255,.6);margin-top:2px}
+
+/* Notes card */
+.notes-card{background:#fff;border-radius:18px;margin:0 16px 12px;padding:14px 16px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nc-head{display:flex;justify-content:space-between;align-items:center}
+.nc-title{font-size:15px;font-weight:600;color:#1c1c1e}
+.nc-add{width:32px;height:32px;background:#1c1c1e;color:#fff;border:none;
+  border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.nc-sub{font-size:13px;color:#8e8e93;margin-top:4px}
+
+/* ═══════════════════════════════
+   SETTINGS
+═══════════════════════════════ */
+.settings-header{padding:16px 20px 10px;display:flex;justify-content:space-between;align-items:center}
+.settings-header h1{font-size:28px;font-weight:700;color:#1c1c1e;letter-spacing:-.5px}
+
+.profile-row{background:#fff;border-radius:20px;margin:0 16px 20px;padding:16px;
+  display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.avatar{width:60px;height:60px;border-radius:30px;flex-shrink:0;
+  background:linear-gradient(135deg,#4a90d9,#6c5ce7);
+  display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff}
+.profile-info{flex:1}
+.pi-name{font-size:17px;font-weight:700;color:#1c1c1e}
+.pi-sub{font-size:13px;color:#8e8e93;margin-top:2px}
+.profile-edit{background:#f2f2f7;border:none;border-radius:8px;padding:7px 12px;
+  font-size:13px;font-weight:600;color:#3c3c43;cursor:pointer}
+
+.set-sec{margin:0 16px 6px}
+.set-sec-title{font-size:13px;font-weight:600;color:#8e8e93;
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;padding:0 4px}
+.set-group{background:#fff;border-radius:18px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.set-row{display:flex;align-items:center;padding:13px 14px;
+  border-bottom:1px solid #f2f2f7;gap:12px;cursor:pointer}
+.set-row:last-child{border-bottom:none}
+.si{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0}
+.sl{flex:1;font-size:15px;color:#1c1c1e;font-weight:500}
+.sv{font-size:14px;color:#8e8e93;font-weight:400}
+.sa{color:#c7c7cc;font-size:17px;margin-left:3px}
+/* inline editable value */
+.sv-inp{border:none;background:transparent;font-size:14px;font-weight:600;
+  color:#8e8e93;text-align:right;width:60px;outline:none}
+
+/* Program builder */
+.prog-builder{background:#fff;border-radius:18px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.pf{border-bottom:1px solid #f2f2f7}
+.pf:last-child{border-bottom:none}
+.pf-hdr{display:flex;align-items:center;padding:13px 14px;gap:12px;cursor:pointer}
+.pf-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0}
+.pf-name{flex:1;font-size:15px;font-weight:600;color:#1c1c1e}
+.pf-cnt{font-size:13px;color:#8e8e93}
+.pf-chev{color:#c7c7cc;font-size:17px;transition:transform .2s;margin-left:2px}
+.pf-chev.o{transform:rotate(90deg)}
+.pf-body{display:none;border-top:1px solid #f2f2f7;background:#fafafa}
+.pf-body.o{display:block}
+.pf-ex{display:flex;align-items:center;padding:9px 14px 9px 52px;
+  border-bottom:1px solid #f2f2f7;gap:10px}
+.pf-ex:last-of-type{border-bottom:none}
+.pf-ex-n{flex:1;font-size:14px;color:#1c1c1e;font-weight:500}
+.pf-ex-s{font-size:12px;color:#8e8e93}
+.pf-del{width:24px;height:24px;background:#ffe5e5;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:11px;color:#ff3b30;font-weight:700;border:none}
+.pf-add{display:flex;align-items:center;gap:8px;padding:10px 14px 10px 52px;
+  cursor:pointer;color:#4a90d9;font-size:14px;font-weight:600;border:none;
+  background:none;width:100%;text-align:left}
+
+/* Toggle */
+.tog{width:48px;height:28px;border-radius:14px;background:#34c759;position:relative;
+  cursor:pointer;flex-shrink:0;transition:background .2s}
+.tog::after{content:'';position:absolute;width:24px;height:24px;background:#fff;
+  border-radius:50%;top:2px;left:22px;box-shadow:0 1px 4px rgba(0,0,0,.2);
+  transition:left .2s}
+.tog.off{background:#e5e5ea}
+.tog.off::after{left:2px}
+
+/* Sync row */
+.sync-row{background:#fff;border-radius:18px;margin:0 16px 6px;padding:13px 14px;
+  display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sync-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0}
+.sync-info{flex:1}
+.sync-n{font-size:15px;font-weight:600;color:#1c1c1e}
+.sync-s{font-size:12px;color:#8e8e93;margin-top:1px}
+
+/* ═══ Tab Bar ═══ */
+.tab-bar{
+  background:rgba(249,249,251,.96);backdrop-filter:blur(24px);
+  border-top:1px solid rgba(0,0,0,.07);
+  display:flex;padding:8px 0 10px;flex-shrink:0;z-index:150;
+}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:3px 0;border:none;background:none;outline:none}
+.tb svg{width:24px;height:24px;fill:#8e8e93;transition:fill .15s}
+.tb-lbl{font-size:10px;font-weight:500;color:#8e8e93;transition:color .15s}
+.tb.active svg{fill:#4a90d9}
+.tb.active .tb-lbl{color:#4a90d9;font-weight:700}
+
+/* spacing */
+.sp8{height:8px}.sp16{height:16px}
+
+/* ═══ Modals ═══ */
+.mod-bg{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:flex-end;}
+.mod-bg.open,.mod-bg.active{display:flex;}
+.mod-sheet{width:100%;background:#fff;max-height:85%;overflow-y:auto;scrollbar-width:none;}
+.mod-sheet::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+  <div class="notch"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="s-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="#1c1c1e"><rect x="0" y="6" width="3" height="6" rx="1"/><rect x="4.5" y="4" width="3" height="8" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".3"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="#1c1c1e"><path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm0-3.5c1.8 0 3.4.8 4.5 2l-1.4 1.4C10.3 8.5 9.2 8 8 8s-2.3.5-3.1 1.4L3.5 8C4.6 6.8 6.2 6 8 6zm0-3.5c2.8 0 5.3 1.2 7.1 3.1L13.7 7C12.3 5.5 10.3 4.5 8 4.5S3.7 5.5 2.3 7L.9 5.6C2.7 3.7 5.2 2.5 8 2.5z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".6" y=".6" width="20.8" height="10.8" rx="2.8" stroke="#1c1c1e" stroke-opacity=".35" stroke-width="1.2"/><rect x="1.6" y="1.6" width="16" height="8.8" rx="2" fill="#1c1c1e"/><path d="M23 4v4a2 2 0 0 0 0-4z" fill="#1c1c1e" fill-opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="content" id="main-content">
+
+    <!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+    <div class="panel active" id="p-dashboard">
+
+      <div class="page-header">
+        <div>
+          <div class="ph-greet">Sunday, March 15</div>
+          <div class="ph-name">Hey, Fatih 👋</div>
+        </div>
+      </div>
+
+      <!-- 1. CALORIES SUMMARY CARD -->
+      <div class="cal-card">
+        <div class="lbl" style="margin-bottom:14px">Calories Summary</div>
+        <div class="cal-inner">
+          <!-- Ring -->
+          <div class="ring-wrap">
+            <svg width="108" height="108" viewBox="0 0 108 108">
+              <circle cx="54" cy="54" r="44" fill="none" stroke="#e5e5ea" stroke-width="9"/>
+              <circle cx="54" cy="54" r="44" fill="none" stroke="#4a90d9" stroke-width="9"
+                stroke-dasharray="276.4" stroke-dashoffset="276.4" stroke-linecap="round" id="dash-ring-fill"/>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-num" id="dash-cal-left">2,151</div>
+              <div class="ring-sub">kcal left</div>
+            </div>
+          </div>
+          <!-- Macro bars -->
+          <div class="cal-macros">
+            <div class="cm-row">
+              <div class="cm-top"><span class="cm-name">Protein</span><span class="cm-val" id="dash-prot-val">0 / 74g</span></div>
+              <div class="cm-bar"><div class="cm-fill tk-red" id="dash-prot-bar" style="width:0%;height:100%"></div></div>
+            </div>
+            <div class="cm-row">
+              <div class="cm-top"><span class="cm-name">Fat</span><span class="cm-val" id="dash-fat-val">0 / 71g</span></div>
+              <div class="cm-bar"><div class="cm-fill tk-amber" id="dash-fat-bar" style="width:0%;height:100%"></div></div>
+            </div>
+            <div class="cm-row">
+              <div class="cm-top"><span class="cm-name">Carbs</span><span class="cm-val" id="dash-carb-val">0 / 302g</span></div>
+              <div class="cm-bar"><div class="cm-fill tk-green" id="dash-carb-bar" style="width:0%;height:100%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="cal-bottom">
+          <div class="cbs"><div class="cbs-num" id="dash-consumed">0</div><div class="cbs-lbl">Consumed</div></div>
+          <div class="cbs"><div class="cbs-num" style="color:#4a90d9" id="dash-remaining">2,151</div><div class="cbs-lbl">Remaining</div></div>
+          <div class="cbs"><div class="cbs-num">2,151</div><div class="cbs-lbl">Target</div></div>
+        </div>
+      </div>
+
+      <!-- 2. TODAY'S WORKOUT CARD (reference style) -->
+      <div class="workout-card">
+        <div class="wc-head">
+          <div class="wc-title">Today's Workout</div>
+          <div class="wc-arrow">›</div>
+        </div>
+        <div class="wc-next">Next Session: <span>Pull Day 💪</span></div>
+        <button class="wc-btn" onclick="goToWorkout()">Go to workout tab</button>
+      </div>
+
+      <!-- 3. BODY COMPOSITION CARD (clickable → modal) -->
+      <div class="body-card" onclick="openMeasModal()">
+        <div class="bc-title-row">
+          <div class="lbl">Body Composition &amp; Trends</div>
+          <div style="font-size:11px;color:#4a90d9;font-weight:600">Details →</div>
+        </div>
+        <div class="bc-metrics">
+          <div class="bc-m" style="padding-right:16px">
+            <div class="bc-big">82.4 <span style="font-size:16px;color:#8e8e93;font-weight:500">kg</span></div>
+            <div class="bc-unit-txt">Current Weight</div>
+            <div class="bc-delta" style="color:#34c759">▼ 0.6 kg this week</div>
+          </div>
+          <div class="bc-m" style="padding-left:16px">
+            <div class="bc-big" style="color:#f5a623">18.2 <span style="font-size:16px;color:#8e8e93;font-weight:500">%</span></div>
+            <div class="bc-unit-txt">Body Fat</div>
+            <div class="bc-delta" style="color:#34c759">▼ 0.3% this week</div>
+          </div>
+        </div>
+        <!-- Mini line graph preview -->
+        <div class="bc-graph-preview">
+          <svg class="chart-svg" viewBox="0 0 340 44" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4a90d9" stop-opacity=".2"/>
+                <stop offset="100%" stop-color="#4a90d9" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,38 L48,34 L96,30 L144,28 L192,22 L240,18 L288,12 L340,8 L340,44 L0,44Z" fill="url(#g1)"/>
+            <path d="M0,38 L48,34 L96,30 L144,28 L192,22 L240,18 L288,12 L340,8"
+              fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="340" cy="8" r="4" fill="#4a90d9"/>
+          </svg>
+        </div>
+        <div class="bc-hint">Tap for detailed measurement graphs</div>
+      </div>
+
+    </div><!-- end dashboard -->
+
+    <!-- ═══════════════════════ MEASUREMENT MODAL ═══════════════════════ -->
+    <div class="modal-overlay" id="measModal" onclick="closeMeasIfBg(event)">
+      <div class="modal-sheet" id="measSheet">
+        <div class="modal-handle"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 0">
+          <div>
+            <div style="font-size:20px;font-weight:700;color:#1c1c1e">Measurements</div>
+            <div style="font-size:13px;color:#8e8e93;margin-top:2px">Track every dimension</div>
+          </div>
+          <button class="modal-close" onclick="closeMeasModal()">✕</button>
+        </div>
+
+        <!-- Metric selector -->
+        <div class="metric-scroll" id="metricScroll">
+          <button class="metric-pill active" onclick="setMetric(this,'Weight')">Weight</button>
+          <button class="metric-pill" onclick="setMetric(this,'Body Fat')">Body Fat</button>
+          <button class="metric-pill" onclick="setMetric(this,'Arms')">Arms</button>
+          <button class="metric-pill" onclick="setMetric(this,'Chest')">Chest</button>
+          <button class="metric-pill" onclick="setMetric(this,'Waist')">Waist</button>
+          <button class="metric-pill" onclick="setMetric(this,'Legs')">Legs</button>
+          <button class="metric-pill" onclick="setMetric(this,'Calves')">Calves</button>
+          <button class="metric-pill" onclick="setMetric(this,'Hips')">Hips</button>
+        </div>
+
+        <!-- Chart card -->
+        <div class="chart-area">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div>
+              <div id="metricLabel" style="font-size:17px;font-weight:700;color:#1c1c1e">Weight</div>
+              <div id="metricCurrent" style="font-size:13px;color:#8e8e93;margin-top:1px">Latest: 82.4 kg</div>
+            </div>
+            <div id="metricTrend" style="background:#e7f8ed;border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;color:#34c759">▼ 0.6 kg</div>
+          </div>
+          <div class="chart-filter">
+            <button class="cf-btn active" onclick="setCf(this,'1W')">1 Week</button>
+            <button class="cf-btn" onclick="setCf(this,'1M')">1 Month</button>
+            <button class="cf-btn" onclick="setCf(this,'1Y')">1 Year</button>
+          </div>
+          <svg class="chart-svg" viewBox="0 0 320 130" id="measSvg">
+            <defs>
+              <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4a90d9" stop-opacity=".2"/>
+                <stop offset="100%" stop-color="#4a90d9" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid -->
+            <line x1="0" y1="25" x2="320" y2="25" stroke="#f2f2f7" stroke-width="1"/>
+            <line x1="0" y1="65" x2="320" y2="65" stroke="#f2f2f7" stroke-width="1"/>
+            <line x1="0" y1="105" x2="320" y2="105" stroke="#f2f2f7" stroke-width="1"/>
+            <!-- Y labels -->
+            <text x="0" y="22" font-size="9" fill="#c7c7cc">84</text>
+            <text x="0" y="62" font-size="9" fill="#c7c7cc">83</text>
+            <text x="0" y="102" font-size="9" fill="#c7c7cc">82</text>
+            <!-- Area fill -->
+            <path id="cFill" d="M18,95 L64,85 L110,78 L156,72 L202,62 L248,50 L294,40 L320,35 L320,120 L18,120Z" fill="url(#cg)"/>
+            <!-- Line -->
+            <path id="cLine" d="M18,95 L64,85 L110,78 L156,72 L202,62 L248,50 L294,40 L320,35"
+              fill="none" stroke="#4a90d9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- End dot -->
+            <circle cx="320" cy="35" r="4.5" fill="#4a90d9"/>
+            <circle cx="320" cy="35" r="8" fill="#4a90d9" opacity=".18"/>
+            <!-- X labels -->
+            <text x="18" y="125" font-size="9" fill="#c7c7cc" text-anchor="middle">Mon</text>
+            <text x="110" y="125" font-size="9" fill="#c7c7cc" text-anchor="middle">Wed</text>
+            <text x="202" y="125" font-size="9" fill="#c7c7cc" text-anchor="middle">Fri</text>
+            <text x="320" y="125" font-size="9" fill="#c7c7cc" text-anchor="middle">Today</text>
+          </svg>
+        </div>
+
+        <!-- Log new measurement -->
+        <div class="log-meas">
+          <div style="font-size:15px;font-weight:700;color:#1c1c1e">Log Today's Measurements</div>
+          <div class="lm-grid">
+            <div class="lm-box">
+              <div class="lm-lbl">Weight</div>
+              <input class="lm-inp" type="number" step="0.1" value="82.4" placeholder="—">
+              <div class="lm-unit">kg</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Body Fat</div>
+              <input class="lm-inp" type="number" step="0.1" value="18.2" placeholder="—">
+              <div class="lm-unit">%</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Arms</div>
+              <input class="lm-inp" type="number" step="0.1" placeholder="—">
+              <div class="lm-unit">cm</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Chest</div>
+              <input class="lm-inp" type="number" step="0.1" placeholder="—">
+              <div class="lm-unit">cm</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Waist</div>
+              <input class="lm-inp" type="number" step="0.1" placeholder="—">
+              <div class="lm-unit">cm</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Legs</div>
+              <input class="lm-inp" type="number" step="0.1" placeholder="—">
+              <div class="lm-unit">cm</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Calves</div>
+              <input class="lm-inp" type="number" step="0.1" placeholder="—">
+              <div class="lm-unit">cm</div>
+            </div>
+            <div class="lm-box">
+              <div class="lm-lbl">Hips</div>
+              <input class="lm-inp" type="number" step="0.1" placeholder="—">
+              <div class="lm-unit">cm</div>
+            </div>
+          </div>
+          <button class="lm-save">Save Measurements</button>
+        </div>
+
+      </div>
+    </div><!-- end modal -->
+
+    <!-- ═══════════════════════ NUTRITION ═══════════════════════ -->
+    <div class="panel" id="p-nutrition">
+
+      <div class="nutr-header">
+        <div class="nutr-title">Nutrition</div>
+      </div>
+
+      <!-- Time filter (MacroFactor style underline) -->
+      <div class="time-strip">
+        <button class="ts-btn active" onclick="setTs(this)">Today</button>
+        <button class="ts-btn" onclick="setTs(this)">1 Week</button>
+        <button class="ts-btn" onclick="setTs(this)">1 Month</button>
+        <button class="ts-btn" onclick="setTs(this)">3 Months</button>
+        <button class="ts-btn" onclick="setTs(this)">1 Year</button>
+      </div>
+      <!-- sub-label showing date range -->
+      <div class="nutr-date" style="font-size:12px;color:#8e8e93;padding:0 20px 6px;font-weight:500">Mar 15</div>
+      <div style="height:1px;background:#e5e5ea;margin:0 16px 12px"></div>
+
+      <!-- ── TODAY VIEW ── -->
+      <div id="nutr-today">
+        <!-- Calories card -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="nutr-section" style="margin:0;font-size:17px">Calories</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:13px;color:#8e8e93">Contributors</span>
+              <div class="tog off" onclick="this.classList.toggle('off')" style="width:36px;height:20px;border-radius:10px"></div>
+            </div>
+          </div>
+          <div class="pr-row">
+            <span class="pr-name" style="font-size:15px">Calories</span>
+            <div class="pr-right">
+              <span class="pr-txt" id="nutr-cal-txt">0 / 2,151 kcal</span>
+              <span class="pr-pct" id="nutr-cal-pct" style="color:#4a90d9">0%</span>
+            </div>
+          </div>
+          <div class="pr-track">
+            <div class="pr-fill tk-blue" id="nutr-cal-fill" style="width:0%"></div>
+            <div class="pr-marker" style="left:50%"></div>
+          </div>
+        </div>
+
+        <!-- Macros card -->
+        <div class="card">
+          <div class="nutr-section" style="font-size:17px">Macros</div>
+          <div class="pr-row">
+            <span class="pr-name">Protein</span>
+            <div class="pr-right"><span class="pr-txt" id="nutr-prot-txt">0 / 74 g</span><span class="pr-pct" id="nutr-prot-pct" style="color:#ff6b6b">0%</span></div>
+          </div>
+          <div class="pr-track"><div class="pr-fill tk-red" id="nutr-prot-fill" style="width:0%"></div><div class="pr-marker" style="left:50%"></div></div>
+          <div class="pr-row">
+            <span class="pr-name">Fat</span>
+            <div class="pr-right"><span class="pr-txt" id="nutr-fat-txt">0 / 71 g</span><span class="pr-pct" id="nutr-fat-pct" style="color:#f5a623">0%</span></div>
+          </div>
+          <div class="pr-track"><div class="pr-fill tk-amber" id="nutr-fat-fill" style="width:0%"></div><div class="pr-marker" style="left:50%"></div></div>
+          <div class="pr-row">
+            <span class="pr-name">Carbs</span>
+            <div class="pr-right"><span class="pr-txt" id="nutr-carb-txt">0 / 302 g</span><span class="pr-pct" id="nutr-carb-pct" style="color:#34c759">0%</span></div>
+          </div>
+          <div class="pr-track" style="margin-bottom:0"><div class="pr-fill tk-green" id="nutr-carb-fill" style="width:0%"></div><div class="pr-marker" style="left:50%"></div></div>
+        </div>
+
+        <!-- Water card -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div>
+              <div style="font-size:17px;font-weight:700;color:#1c1c1e">Water 💧</div>
+              <div id="water-display" style="font-size:13px;color:#8e8e93;margin-top:2px">0.0 / 2.5 L</div>
+            </div>
+            <div onclick="addGlass()" style="background:#e0f5ff;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;color:#5ac8fa;cursor:pointer;user-select:none">+ Glass</div>
+          </div>
+          <div class="pr-track" style="height:8px;background:#e0f5ff;margin-bottom:0">
+            <div id="water-bar" class="pr-fill tk-teal" style="width:0%;height:8px;transition:width 0.3s ease"></div>
+          </div>
+        </div>
+
+        <!-- Today's Meals -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:17px;font-weight:700;color:#1c1c1e">Today's Meals</div>
+            <div onclick="openMealModal()" style="font-size:13px;color:#4a90d9;font-weight:600;cursor:pointer">+ Add Meal</div>
+          </div>
+          <div id="meal-list-saved"></div>
+          <div class="meal-item mi-empty" onclick="openMealModal()" style="cursor:pointer">
+            <div class="mi-left"><div class="mi-name">Log a meal</div><div class="mi-sub">Tap to add</div></div>
+            <div class="mi-right" style="font-size:22px;color:#c7c7cc">+</div>
+          </div>
+        </div>
+      </div><!-- end nutr-today -->
+
+      <!-- ── 1 WEEK VIEW ── -->
+      <div id="nutr-week" style="display:none">
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">📊</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">Günlük yemek kaydı yaparak haftalık trendlerini görmeye başla.</div>
+        </div>
+      </div><!-- end nutr-week -->
+
+      <!-- ── 1 MONTH VIEW ── -->
+      <div id="nutr-month" style="display:none">
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">📅</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">Aylık trendleri görmek için yemek kaydetmeye devam et.</div>
+        </div>
+      </div><!-- end nutr-month -->
+
+      <!-- ── 3 MONTHS VIEW ── -->
+      <div id="nutr-3month" style="display:none">
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">📈</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">3 aylık trendleri görmek için daha fazla veri gerekiyor.</div>
+        </div>
+      </div><!-- end nutr-3month -->
+
+      <!-- ── 1 YEAR VIEW ── -->
+      <div id="nutr-year" style="display:none">
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">🗓️</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">Yıllık trendleri görmek için daha fazla veri gerekiyor.</div>
+        </div>
+      </div><!-- end nutr-year -->
+
+
+    </div><!-- end nutrition -->
+
+    <!-- ═══════════════════════ WORKOUT ═══════════════════════ -->
+    <div class="panel" id="p-workout">
+
+      <div class="workout-header">
+        <div class="wh-left">
+          <h1>Workout</h1>
+          <span class="wh-badge">PPL Program · Week 6</span>
+        </div>
+        <button class="wh-btn" onclick="openNewWorkoutModal()">+ New</button>
+      </div>
+
+      <!-- Day tabs (underline style, MacroFactor-inspired) -->
+      <div class="prog-strip" id="progStrip">
+        <button class="ps-btn" onclick="setDay(this,'push')">Push</button>
+        <button class="ps-btn active" onclick="setDay(this,'pull')">Pull</button>
+        <button class="ps-btn" onclick="setDay(this,'legs')">Legs</button>
+        <button class="ps-btn" onclick="setDay(this,'cardio')">Cardio</button>
+        <button class="ps-btn" onclick="setDay(this,'running')">Running</button>
+      </div>
+
+      <!-- ── PULL exercises ── -->
+      <div id="wd-pull">
+        <div style="padding:0 20px 8px;display:flex;justify-content:space-between;align-items:center">
+          <span class="lbl">Pull Day — Today</span>
+          <span style="font-size:12px;color:#8e8e93">From Settings</span>
+        </div>
+
+        <!-- Deadlift -->
+        <div class="ex-card">
+          <div class="ex-head">
+            <div class="ex-icon-box" style="background:#fff3f0">🏋️</div>
+            <div class="ex-info">
+              <div class="ex-name-txt">Deadlift</div>
+              <div class="ex-meta-txt">4 sets · PR: 120 kg × 5</div>
+            </div>
+            <button class="swap-btn">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M1 4h8M7 2l2 2-2 2M11 8H3M5 6l-2 2 2 2" stroke="#3c3c43" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Swap
+            </button>
+          </div>
+          <div class="sets-tbl">
+            <div class="st-hdr"><div class="sth">Set</div><div class="sth">Prev.</div><div class="sth">Weight</div><div class="sth">Reps</div></div>
+            <div class="st-row"><div class="st-num">1</div><div class="st-prev">100×5</div><input class="st-inp" value="120"><input class="st-inp" value="5"></div>
+            <div class="st-row"><div class="st-num">2</div><div class="st-prev">100×5</div><input class="st-inp" value="120"><input class="st-inp" value="5"></div>
+            <div class="st-row"><div class="st-num">3</div><div class="st-prev">100×3</div><input class="st-inp" value="115"><input class="st-inp" value="3"></div>
+            <div class="st-row"><div class="st-num">4</div><div class="st-prev">—</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+          </div>
+        </div>
+
+        <!-- Pull-up -->
+        <div class="ex-card">
+          <div class="ex-head">
+            <div class="ex-icon-box" style="background:#f0f4ff">🔝</div>
+            <div class="ex-info">
+              <div class="ex-name-txt">Pull-up (Weighted)</div>
+              <div class="ex-meta-txt">3 sets · Last: +10 kg × 8</div>
+            </div>
+            <button class="swap-btn">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M1 4h8M7 2l2 2-2 2M11 8H3M5 6l-2 2 2 2" stroke="#3c3c43" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Swap
+            </button>
+          </div>
+          <div class="sets-tbl">
+            <div class="st-hdr"><div class="sth">Set</div><div class="sth">Prev.</div><div class="sth">Weight</div><div class="sth">Reps</div></div>
+            <div class="st-row"><div class="st-num">1</div><div class="st-prev">+10×8</div><input class="st-inp" value="+12.5"><input class="st-inp" value="6"></div>
+            <div class="st-row"><div class="st-num">2</div><div class="st-prev">+10×6</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">3</div><div class="st-prev">—</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+          </div>
+        </div>
+
+        <!-- Barbell Row -->
+        <div class="ex-card">
+          <div class="ex-head">
+            <div class="ex-icon-box" style="background:#f0fff4">💪</div>
+            <div class="ex-info">
+              <div class="ex-name-txt">Barbell Row</div>
+              <div class="ex-meta-txt">3 sets · Last: 80 kg × 8</div>
+            </div>
+            <button class="swap-btn">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M1 4h8M7 2l2 2-2 2M11 8H3M5 6l-2 2 2 2" stroke="#3c3c43" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Swap
+            </button>
+          </div>
+          <div class="sets-tbl">
+            <div class="st-hdr"><div class="sth">Set</div><div class="sth">Prev.</div><div class="sth">Weight</div><div class="sth">Reps</div></div>
+            <div class="st-row"><div class="st-num">1</div><div class="st-prev">80×8</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">2</div><div class="st-prev">80×8</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">3</div><div class="st-prev">—</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+          </div>
+        </div>
+
+        <!-- Bicep Curl -->
+        <div class="ex-card">
+          <div class="ex-head">
+            <div class="ex-icon-box" style="background:#f5f0ff">🦾</div>
+            <div class="ex-info">
+              <div class="ex-name-txt">Bicep Curl</div>
+              <div class="ex-meta-txt">3 sets · Last: 20 kg × 12</div>
+            </div>
+            <button class="swap-btn">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M1 4h8M7 2l2 2-2 2M11 8H3M5 6l-2 2 2 2" stroke="#3c3c43" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Swap
+            </button>
+          </div>
+          <div class="sets-tbl">
+            <div class="st-hdr"><div class="sth">Set</div><div class="sth">Prev.</div><div class="sth">Weight</div><div class="sth">Reps</div></div>
+            <div class="st-row"><div class="st-num">1</div><div class="st-prev">20×12</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">2</div><div class="st-prev">20×10</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">3</div><div class="st-prev">—</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="notes-card">
+          <div class="nc-head">
+            <div class="nc-title">Notes</div>
+            <button class="nc-add">+</button>
+          </div>
+          <div class="nc-sub">Next Session: Push Day</div>
+        </div>
+      </div>
+
+      <!-- ── RUNNING tab ── -->
+      <div id="wd-running" style="display:none;padding:0 16px">
+        <div style="padding:0 4px 12px">
+          <div class="lbl" style="margin-bottom:2px">Running Session</div>
+          <div style="font-size:13px;color:#8e8e93">Enter distance &amp; time → pace is calculated</div>
+        </div>
+        <div class="run-inputs">
+          <div class="run-box">
+            <div class="rb-lbl">Distance</div>
+            <input class="rb-inp" type="number" step="0.1" id="runDist" placeholder="0.0" oninput="calcPace()">
+            <div class="rb-unit">km</div>
+          </div>
+          <div class="run-box">
+            <div class="rb-lbl">Time (min)</div>
+            <input class="rb-inp" type="number" step="1" id="runTime" placeholder="0" oninput="calcPace()">
+            <div class="rb-unit">minutes</div>
+          </div>
+          <div class="run-box">
+            <div class="rb-lbl">Heart Rate</div>
+            <input class="rb-inp" type="number" id="runHR" placeholder="—">
+            <div class="rb-unit">bpm</div>
+          </div>
+          <div class="run-box">
+            <div class="rb-lbl">Calories</div>
+            <input class="rb-inp" type="number" id="runCal" placeholder="—">
+            <div class="rb-unit">kcal</div>
+          </div>
+        </div>
+        <div class="pace-result">
+          <div class="pr-label">Pace</div>
+          <div class="pr-pace" id="paceDisplay">—:——</div>
+          <div class="pr-pace-unit">min / km</div>
+        </div>
+        <button style="width:100%;margin-top:10px;background:#1c1c2e;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:600;cursor:pointer">Save Run ✓</button>
+      </div>
+
+      <!-- Other days placeholder -->
+      <div id="wd-push" style="display:none">
+        <div style="padding:0 20px 8px"><span class="lbl">Push Day</span></div>
+        <div class="ex-card">
+          <div class="ex-head">
+            <div class="ex-icon-box" style="background:#fff3e0">💥</div>
+            <div class="ex-info"><div class="ex-name-txt">Bench Press</div><div class="ex-meta-txt">4 sets · Last: 90 kg × 8</div></div>
+            <button class="swap-btn"><svg viewBox="0 0 12 12" fill="none"><path d="M1 4h8M7 2l2 2-2 2M11 8H3M5 6l-2 2 2 2" stroke="#3c3c43" stroke-width="1.3" stroke-linecap="round"/></svg>Swap</button>
+          </div>
+          <div class="sets-tbl">
+            <div class="st-hdr"><div class="sth">Set</div><div class="sth">Prev.</div><div class="sth">Weight</div><div class="sth">Reps</div></div>
+            <div class="st-row"><div class="st-num">1</div><div class="st-prev">85×8</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">2</div><div class="st-prev">85×8</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">3</div><div class="st-prev">80×6</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+            <div class="st-row"><div class="st-num">4</div><div class="st-prev">—</div><input class="st-inp" placeholder="kg"><input class="st-inp" placeholder="reps"></div>
+          </div>
+        </div>
+      </div>
+      <div id="wd-legs" style="display:none"><div style="padding:20px"><span class="lbl">Legs Day</span><div style="margin-top:12px;text-align:center;color:#c7c7cc;font-size:13px">Exercises from Settings → Program Builder</div></div></div>
+      <div id="wd-cardio" style="display:none"><div style="padding:20px"><span class="lbl">Cardio</span><div style="margin-top:12px;text-align:center;color:#c7c7cc;font-size:13px">Exercises from Settings → Program Builder</div></div></div>
+
+    </div><!-- end workout -->
+
+    <!-- ═══════════════════════ SETTINGS ═══════════════════════ -->
+    <div class="panel" id="p-settings">
+
+      <div class="settings-header">
+        <h1>Settings</h1>
+      </div>
+
+      <!-- Profile -->
+      <div class="profile-row">
+        <div class="avatar">F</div>
+        <div class="profile-info">
+          <div class="pi-name">Fatih</div>
+          <div class="pi-sub">PPL · Week 6 · 82.4 kg</div>
+        </div>
+        <button class="profile-edit">Edit Profile</button>
+      </div>
+
+      <!-- Body Metrics & Measurements -->
+      <div class="set-sec">
+        <div class="set-sec-title">Body Metrics &amp; Measurements</div>
+        <div class="set-group">
+          <div class="set-row"><div class="si" style="background:#e8f2ff">📏</div><div class="sl">Age</div><input class="sv-inp" type="number" value="33"><div class="sa">›</div></div>
+          <div class="set-row"><div class="si" style="background:#e8f2ff">📐</div><div class="sl">Height</div><input class="sv-inp" type="number" value="181" style="width:55px"><span style="font-size:13px;color:#8e8e93;margin-right:3px">cm</span><div class="sa">›</div></div>
+          <div class="set-row"><div class="si" style="background:#e8f2ff">⚖️</div><div class="sl">Weight</div><input class="sv-inp" type="number" step="0.1" id="s-weight" placeholder="—" style="width:55px"><span style="font-size:13px;color:#8e8e93;margin-right:3px">kg</span><div class="sa">›</div></div>
+          <div class="set-row"><div class="si" style="background:#f0e8ff">🧬</div><div class="sl">Gender</div><div class="sv">Male</div><div class="sa">›</div></div>
+        </div>
+      </div>
+      <div class="sp8"></div>
+      <div class="set-sec">
+        <div class="set-group">
+          <div class="set-row"><div class="si" style="background:#fef3e0">💪</div><div class="sl">Arms</div><input class="sv-inp" type="number" placeholder="—"><span style="font-size:12px;color:#c7c7cc;margin-right:3px">cm</span></div>
+          <div class="set-row"><div class="si" style="background:#fef3e0">🫁</div><div class="sl">Chest</div><input class="sv-inp" type="number" placeholder="—"><span style="font-size:12px;color:#c7c7cc;margin-right:3px">cm</span></div>
+          <div class="set-row"><div class="si" style="background:#fef3e0">⌛</div><div class="sl">Waist</div><input class="sv-inp" type="number" placeholder="—"><span style="font-size:12px;color:#c7c7cc;margin-right:3px">cm</span></div>
+          <div class="set-row"><div class="si" style="background:#f0fff4">🦵</div><div class="sl">Legs</div><input class="sv-inp" type="number" placeholder="—"><span style="font-size:12px;color:#c7c7cc;margin-right:3px">cm</span></div>
+          <div class="set-row"><div class="si" style="background:#f0fff4">🦿</div><div class="sl">Calves</div><input class="sv-inp" type="number" placeholder="—"><span style="font-size:12px;color:#c7c7cc;margin-right:3px">cm</span></div>
+          <div class="set-row"><div class="si" style="background:#fff0f5">🫶</div><div class="sl">Hips</div><input class="sv-inp" type="number" placeholder="—"><span style="font-size:12px;color:#c7c7cc;margin-right:3px">cm</span></div>
+        </div>
+      </div>
+
+      <!-- Program Builder -->
+      <div class="sp16"></div>
+      <div class="set-sec">
+        <div class="set-sec-title">Workout Program Builder</div>
+        <div style="font-size:12px;color:#8e8e93;padding:0 4px 8px">Changes here update your Workout tab instantly</div>
+        <div class="prog-builder">
+
+          <div class="pf">
+            <div class="pf-hdr" onclick="tglFolder('push')">
+              <div class="pf-ico" style="background:#fff3e0">💥</div>
+              <div class="pf-name">Push Day</div>
+              <div class="pf-cnt">4 exercises</div>
+              <div class="pf-chev" id="pfc-push">›</div>
+            </div>
+            <div class="pf-body" id="pfb-push">
+              <div class="pf-ex"><div class="pf-ex-n">Bench Press</div><div class="pf-ex-s">4×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Overhead Press</div><div class="pf-ex-s">4×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Incline DB Press</div><div class="pf-ex-s">3×10</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Tricep Pushdown</div><div class="pf-ex-s">3×12</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
+            </div>
+          </div>
+
+          <div class="pf">
+            <div class="pf-hdr" onclick="tglFolder('pull')">
+              <div class="pf-ico" style="background:#e8f2ff">🔷</div>
+              <div class="pf-name">Pull Day</div>
+              <div class="pf-cnt">4 exercises</div>
+              <div class="pf-chev o" id="pfc-pull">›</div>
+            </div>
+            <div class="pf-body o" id="pfb-pull">
+              <div class="pf-ex"><div class="pf-ex-n">Deadlift</div><div class="pf-ex-s">4×5</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Pull-up (Weighted)</div><div class="pf-ex-s">3×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Barbell Row</div><div class="pf-ex-s">3×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Bicep Curl</div><div class="pf-ex-s">3×12</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
+            </div>
+          </div>
+
+          <div class="pf">
+            <div class="pf-hdr" onclick="tglFolder('legs')">
+              <div class="pf-ico" style="background:#f0ffe0">🦵</div>
+              <div class="pf-name">Leg Day</div>
+              <div class="pf-cnt">4 exercises</div>
+              <div class="pf-chev" id="pfc-legs">›</div>
+            </div>
+            <div class="pf-body" id="pfb-legs">
+              <div class="pf-ex"><div class="pf-ex-n">Back Squat</div><div class="pf-ex-s">4×6</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Romanian DL</div><div class="pf-ex-s">3×10</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Leg Press</div><div class="pf-ex-s">3×12</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Calf Raise</div><div class="pf-ex-s">4×15</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
+            </div>
+          </div>
+
+          <div class="pf">
+            <div class="pf-hdr" onclick="tglFolder('card2')">
+              <div class="pf-ico" style="background:#fff0f5">❤️</div>
+              <div class="pf-name">Cardio</div>
+              <div class="pf-cnt">2 exercises</div>
+              <div class="pf-chev" id="pfc-card2">›</div>
+            </div>
+            <div class="pf-body" id="pfb-card2">
+              <div class="pf-ex"><div class="pf-ex-n">Stationary Bike</div><div class="pf-ex-s">30 min</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Jump Rope</div><div class="pf-ex-s">15 min</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sync -->
+      <div class="sp16"></div>
+      <div class="set-sec">
+        <div class="set-sec-title">Sync</div>
+      </div>
+      <div class="sync-row">
+        <div class="sync-ico" style="background:linear-gradient(135deg,#ff6b6b,#ff3b30);color:#fff;font-size:20px">❤️</div>
+        <div class="sync-info"><div class="sync-n">Apple Health</div><div class="sync-s">Steps · calories · heart rate</div></div>
+        <div class="tog" onclick="this.classList.toggle('off')"></div>
+      </div>
+      <div class="sync-row">
+        <div class="sync-ico" style="background:#e8f8f0;font-size:20px">🟢</div>
+        <div class="sync-info"><div class="sync-n">Google Fit</div><div class="sync-s">Activity · workouts</div></div>
+        <div class="tog off" onclick="this.classList.toggle('off')"></div>
+      </div>
+      <div class="sync-row">
+        <div class="sync-ico" style="background:#f0f4ff;font-size:20px">⌚</div>
+        <div class="sync-info"><div class="sync-n">Apple Watch</div><div class="sync-s">Workout data · heart rate</div></div>
+        <div class="tog off" onclick="this.classList.toggle('off')"></div>
+      </div>
+
+      <!-- App Preferences (no language) -->
+      <div class="sp16"></div>
+      <div class="set-sec">
+        <div class="set-sec-title">Preferences</div>
+        <div class="set-group">
+          <div class="set-row"><div class="si" style="background:#1c1c1e">🌙</div><div class="sl">Dark Mode</div><div class="tog off" onclick="this.classList.toggle('off')"></div></div>
+          <div class="set-row"><div class="si" style="background:#e8f2ff">🔔</div><div class="sl">Notifications</div><div class="tog" onclick="this.classList.toggle('off')"></div></div>
+          <div class="set-row"><div class="si" style="background:#f5f0ff">📊</div><div class="sl">Units</div><div class="sv">kg · km</div><div class="sa">›</div></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:16px;font-size:11px;color:#c7c7cc">FitTrack · Design Mockup</div>
+      <div class="sp16"></div>
+
+    </div><!-- end settings -->
+
+  </div><!-- end content -->
+
+  <!-- ═══ Tab Bar ═══ -->
+  <div class="tab-bar">
+    <button class="tb active" onclick="goTab('dashboard',this)">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span class="tb-lbl">Dashboard</span>
+    </button>
+    <button class="tb" onclick="goTab('nutrition',this)">
+      <svg viewBox="0 0 24 24"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-4.5-6.72-5.5-7.5-5.5S1 10.49 1 15.99v2h15.03v-2z"/></svg>
+      <span class="tb-lbl">Nutrition</span>
+    </button>
+    <button class="tb" onclick="goTab('workout',this)">
+      <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
+      <span class="tb-lbl">Workout</span>
+    </button>
+    <button class="tb" onclick="goTab('settings',this)">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.6-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54A.48.48 0 0 0 14 2h-4a.48.48 0 0 0-.48.41l-.36 2.54a7 7 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.6.22L2.63 8.47a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94L2.73 14a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.6.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.27.41.49.41h4c.22 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .6-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 0 1 8.4 12 3.6 3.6 0 0 1 12 8.4a3.6 3.6 0 0 1 3.6 3.6 3.6 3.6 0 0 1-3.6 3.6z"/></svg>
+      <span class="tb-lbl">Settings</span>
+    </button>
+  </div>
+
+  <!-- ═══ Meal Add Modal ═══ -->
+  <div class="mod-bg" id="mealModal" onclick="closeMealIfBg2(event)">
+    <div class="mod-sheet" style="border-radius:20px 20px 0 0;padding:24px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:19px;font-weight:700;color:#1c1c1e">Log Meal</div>
+        <button onclick="closeMealModal()" style="background:none;border:none;font-size:22px;color:#8e8e93;cursor:pointer;line-height:1">×</button>
+      </div>
+      <input id="meal-name-input" placeholder="Meal name (e.g. Chicken & Rice)" style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:inherit">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <input id="meal-cal-input" type="number" placeholder="Calories (kcal)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+        <input id="meal-prot-input" type="number" placeholder="Protein (g)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+        <input id="meal-carbs-input" type="number" placeholder="Carbs (g)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+        <input id="meal-fat-input" type="number" placeholder="Fat (g)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+      </div>
+      <button id="meal-add-btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#4a90d9,#5a48e8);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit">Add Meal</button>
+    </div>
+  </div>
+
+  <!-- ═══ New Workout Modal ═══ -->
+  <div class="mod-bg" id="newWorkoutModal" onclick="closeNewWorkoutIfBg(event)">
+    <div class="mod-sheet" style="border-radius:20px 20px 0 0;padding:24px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:19px;font-weight:700;color:#1c1c1e">New Session</div>
+        <button onclick="closeNewWorkoutModal()" style="background:none;border:none;font-size:22px;color:#8e8e93;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div onclick="startWorkoutSession('Pull')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">🏋️</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Pull</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Back, Biceps</div>
+        </div>
+        <div onclick="startWorkoutSession('Push')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">💪</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Push</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Chest, Shoulders, Tris</div>
+        </div>
+        <div onclick="startWorkoutSession('Legs')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">🦵</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Legs</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Quads, Hams, Calves</div>
+        </div>
+        <div onclick="startWorkoutSession('Cardio')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">🏃</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Cardio</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Running, Cycling</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Add Exercise Modal ═══ -->
+  <div class="mod-bg" id="addExModal" onclick="closeAddExIfBg(event)">
+    <div class="mod-sheet" style="border-radius:20px 20px 0 0;padding:24px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:19px;font-weight:700;color:#1c1c1e">Add Exercise</div>
+        <button onclick="closeAddExModal()" style="background:none;border:none;font-size:22px;color:#8e8e93;cursor:pointer;line-height:1">×</button>
+      </div>
+      <input id="ex-name-input" placeholder="Exercise name" style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:inherit">
+      <input id="ex-sets-input" placeholder="Sets × Reps (e.g. 4×8)" style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;margin-bottom:14px;box-sizing:border-box;outline:none;font-family:inherit">
+      <button id="ex-add-confirm-btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#4a90d9,#5a48e8);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit">Add to Program</button>
+    </div>
+  </div>
+
+</div><!-- end phone -->
+
+<script>
+// ── Tab navigation ──
+function goTab(name, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('main-content').scrollTop=0;
+  // hide fab when not on nutrition
+  const fab=document.getElementById('nutr-fab');
+  if(fab) fab.style.display = name==='nutrition'?'flex':'none';
+}
+function goToWorkout(){
+  goTab('workout', document.querySelectorAll('.tb')[2]);
+}
+// Initial fab visibility (element removed, no-op)
+
+
+// ── Measurement Modal ──
+function openMeasModal(){document.getElementById('measModal').classList.add('open')}
+function closeMeasModal(){document.getElementById('measModal').classList.remove('open')}
+function closeMeasIfBg(e){if(e.target===document.getElementById('measModal'))closeMeasModal()}
+
+// Metric selector
+const metricData={
+  'Weight':{current:'82.4 kg',trend:'▼ 0.6 kg',trendColor:'#34c759',bg:'#e7f8ed',
+    line:'M18,95 L64,88 L110,82 L156,76 L202,68 L248,55 L294,42 L320,36',
+    fill:'M18,95 L64,88 L110,82 L156,76 L202,68 L248,55 L294,42 L320,36 L320,120 L18,120Z'},
+  'Body Fat':{current:'18.2 %',trend:'▼ 0.3%',trendColor:'#34c759',bg:'#e7f8ed',
+    line:'M18,90 L64,86 L110,80 L156,75 L202,70 L248,64 L294,55 L320,50',
+    fill:'M18,90 L64,86 L110,80 L156,75 L202,70 L248,64 L294,55 L320,50 L320,120 L18,120Z'},
+  'Arms':{current:'38.0 cm',trend:'▲ 0.5 cm',trendColor:'#4a90d9',bg:'#e8f2ff',
+    line:'M18,100 L64,98 L110,95 L156,90 L202,85 L248,78 L294,72 L320,68',
+    fill:'M18,100 L64,98 L110,95 L156,90 L202,85 L248,78 L294,72 L320,68 L320,120 L18,120Z'},
+  'Chest':{current:'96.0 cm',trend:'▼ 1.2 cm',trendColor:'#34c759',bg:'#e7f8ed',
+    line:'M18,60 L64,66 L110,72 L156,70 L202,78 L248,82 L294,88 L320,90',
+    fill:'M18,60 L64,66 L110,72 L156,70 L202,78 L248,82 L294,88 L320,90 L320,120 L18,120Z'},
+  'Waist':{current:'84.0 cm',trend:'▼ 2.0 cm',trendColor:'#34c759',bg:'#e7f8ed',
+    line:'M18,55 L64,62 L110,68 L156,72 L202,78 L248,84 L294,88 L320,92',
+    fill:'M18,55 L64,62 L110,68 L156,72 L202,78 L248,84 L294,88 L320,92 L320,120 L18,120Z'},
+  'Legs':{current:'58.0 cm',trend:'▲ 0.8 cm',trendColor:'#4a90d9',bg:'#e8f2ff',
+    line:'M18,95 L64,92 L110,88 L156,83 L202,79 L248,74 L294,68 L320,64',
+    fill:'M18,95 L64,92 L110,88 L156,83 L202,79 L248,74 L294,68 L320,64 L320,120 L18,120Z'},
+  'Calves':{current:'37.0 cm',trend:'—',trendColor:'#8e8e93',bg:'#f2f2f7',
+    line:'M18,80 L64,80 L110,78 L156,76 L202,76 L248,74 L294,72 L320,72',
+    fill:'M18,80 L64,80 L110,78 L156,76 L202,76 L248,74 L294,72 L320,72 L320,120 L18,120Z'},
+  'Hips':{current:'92.0 cm',trend:'▼ 0.5 cm',trendColor:'#34c759',bg:'#e7f8ed',
+    line:'M18,70 L64,74 L110,78 L156,80 L202,84 L248,86 L294,88 L320,90',
+    fill:'M18,70 L64,74 L110,78 L156,80 L202,84 L248,86 L294,88 L320,90 L320,120 L18,120Z'}
+};
+function setMetric(btn, name){
+  document.querySelectorAll('.metric-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d=metricData[name];
+  document.getElementById('metricLabel').textContent=name;
+  document.getElementById('metricCurrent').textContent='Latest: '+d.current;
+  document.getElementById('metricTrend').textContent=d.trend;
+  document.getElementById('metricTrend').style.color=d.trendColor;
+  document.getElementById('metricTrend').style.background=d.bg;
+  document.getElementById('cLine').setAttribute('d',d.line);
+  document.getElementById('cFill').setAttribute('d',d.fill);
+}
+
+// Chart filter
+function setCf(btn, range){
+  document.querySelectorAll('.cf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Nutrition time strip ──
+const nutrViews={
+  'Today':'nutr-today',
+  '1 Week':'nutr-week',
+  '1 Month':'nutr-month',
+  '3 Months':'nutr-3month',
+  '1 Year':'nutr-year'
+};
+function setTs(btn){
+  document.querySelectorAll('.ts-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const key=btn.textContent.trim();
+  Object.values(nutrViews).forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  const target=nutrViews[key];
+  if(target){
+    const el=document.getElementById(target);
+    if(el) el.style.display='block';
+  }
+  // update header date label
+  const dateEl=document.querySelector('.nutr-date');
+  if(dateEl){
+    const labels={'Today':'Mar 15','1 Week':'Mar 9–15','1 Month':'Mar 2025','3 Months':'Jan–Mar 2025','1 Year':'Mar 2024–2025'};
+    dateEl.textContent=labels[key]||'';
+  }
+}
+
+// ── Workout day tabs ──
+const wdAll=['pull','push','legs','cardio','running'];
+function setDay(btn, day){
+  document.querySelectorAll('.ps-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  wdAll.forEach(d=>{
+    const el=document.getElementById('wd-'+d);
+    if(el) el.style.display = d===day?'block':'none';
+  });
+}
+
+// ── Pace calculator ──
+function calcPace(){
+  const dist=parseFloat(document.getElementById('runDist').value);
+  const time=parseFloat(document.getElementById('runTime').value);
+  const el=document.getElementById('paceDisplay');
+  if(dist>0 && time>0){
+    const paceMin=time/dist;
+    const mins=Math.floor(paceMin);
+    const secs=Math.round((paceMin-mins)*60);
+    el.textContent=mins+':'+(secs<10?'0':'')+secs;
+  } else {
+    el.textContent='—:——';
+  }
+}
+
+// ── Settings folder toggle ──
+function tglFolder(id){
+  const body=document.getElementById('pfb-'+id);
+  const chev=document.getElementById('pfc-'+id);
+  body.classList.toggle('o');
+  chev.classList.toggle('o');
+}
+
+// ── Meal modal ──
+let _addExTargetBody = null;
+function openMealModal(){
+  const m = document.getElementById('mealModal');
+  if(m) m.classList.add('open');
+}
+function closeMealModal(){
+  const m = document.getElementById('mealModal');
+  if(m) m.classList.remove('open');
+  ['meal-name-input','meal-cal-input','meal-prot-input','meal-carbs-input','meal-fat-input']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function closeMealIfBg2(e){ if(e.target===e.currentTarget) closeMealModal(); }
+
+// ── Exercise delete / add ──
+function delEx(btn){ btn.closest('.pf-ex').remove(); }
+function addEx(btn){
+  _addExTargetBody = btn.closest('.pf-body');
+  const m = document.getElementById('addExModal');
+  if(m){ m.style.display='flex'; setTimeout(()=>m.classList.add('active'),10); }
+  document.getElementById('ex-add-confirm-btn').onclick = confirmAddEx;
+}
+function closeAddExModal(){
+  const m = document.getElementById('addExModal');
+  if(m){ m.classList.remove('active'); setTimeout(()=>{ m.style.display='none'; }, 250); }
+  ['ex-name-input','ex-sets-input'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function closeAddExIfBg(e){ if(e.target===e.currentTarget) closeAddExModal(); }
+function confirmAddEx(){
+  const name = document.getElementById('ex-name-input').value.trim();
+  const sets = document.getElementById('ex-sets-input').value.trim() || '3×10';
+  if(!name){ document.getElementById('ex-name-input').focus(); return; }
+  if(_addExTargetBody){
+    const addBtn = _addExTargetBody.querySelector('.pf-add');
+    const row = document.createElement('div');
+    row.className='pf-ex';
+    row.innerHTML=`<div class="pf-ex-n">${name}</div><div class="pf-ex-s">${sets}</div><button class="pf-del" onclick="delEx(this)">✕</button>`;
+    if(addBtn) _addExTargetBody.insertBefore(row, addBtn);
+    else _addExTargetBody.appendChild(row);
+  }
+  closeAddExModal();
+}
+
+// ── New workout modal ──
+function openNewWorkoutModal(){
+  const m = document.getElementById('newWorkoutModal');
+  if(m){ m.style.display='flex'; setTimeout(()=>m.classList.add('active'),10); }
+}
+function closeNewWorkoutModal(){
+  const m = document.getElementById('newWorkoutModal');
+  if(m){ m.classList.remove('active'); setTimeout(()=>{ m.style.display='none'; }, 250); }
+}
+function closeNewWorkoutIfBg(e){ if(e.target===e.currentTarget) closeNewWorkoutModal(); }
+function startWorkoutSession(type){
+  closeNewWorkoutModal();
+  const workoutBtn = document.querySelector('.tb[onclick*="workout"]');
+  goTab('workout', workoutBtn);
+  const tabs = document.querySelectorAll('.ps-btn');
+  tabs.forEach(t=>{ if(t.textContent.trim()===type) t.click(); });
+}
+
+// ════════════════════════════════════════
+//  localStorage  DATA LAYER
+// ════════════════════════════════════════
+
+const DB = {
+  get(key, def){ try{ const v=localStorage.getItem('ft_'+key); return v?JSON.parse(v):def; }catch(e){ return def; } },
+  set(key, val){ try{ localStorage.setItem('ft_'+key, JSON.stringify(val)); }catch(e){} }
+};
+
+// ── Profile / Settings persistence ──────
+function saveSettings(){
+  const fields = ['s-name','s-age','s-height','s-gender','s-goal','s-program',
+    'm-arms','m-chest','m-waist','m-legs','m-calves','m-hips'];
+  const data = {};
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) data[id] = el.value !== undefined ? el.value : el.textContent;
+  });
+  DB.set('settings', data);
+}
+
+function loadSettings(){
+  const data = DB.get('settings', null);
+  if(!data) return;
+  Object.entries(data).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
+    else el.textContent = val;
+  });
+  // Update dashboard greeting name
+  const nameEl = document.getElementById('s-name');
+  const greetEl = document.querySelector('.ph-name');
+  if(nameEl && greetEl && nameEl.value) greetEl.textContent = nameEl.value;
+}
+
+// Auto-save settings on any input change inside settings panel
+document.getElementById('p-settings').addEventListener('input', saveSettings);
+document.getElementById('p-settings').addEventListener('change', saveSettings);
+
+// ── Water intake persistence ─────────────
+let waterGlasses = DB.get('water_today', 0);
+function renderWater(){
+  const glassML = 250;
+  const totalML = waterGlasses * glassML;
+  const totalL  = (totalML / 1000).toFixed(1);
+  const pct     = Math.min((totalML / 2500) * 100, 100);
+  const el = document.getElementById('water-display');
+  if(el) el.textContent = totalL + ' / 2.5 L';
+  const bar = document.getElementById('water-bar');
+  if(bar) bar.style.width = pct + '%';
+  // Reset at midnight
+  const today = new Date().toDateString();
+  const saved = DB.get('water_date', '');
+  if(saved !== today){ waterGlasses = 0; DB.set('water_date', today); }
+  DB.set('water_today', waterGlasses);
+}
+// Patch addGlass function
+const _origAddGlass = window.addGlass;
+window.addGlass = function(){
+  waterGlasses++;
+  renderWater();
+};
+
+// ── Meal log persistence ─────────────────
+let meals = DB.get('meals', []);
+function saveMeals(){ DB.set('meals', meals); }
+
+function renderMeals(){
+  const container = document.getElementById('meal-list-saved');
+  if(!container) return;
+  container.innerHTML = '';
+  meals.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'padding:12px 0;border-bottom:1px solid #f2f2f7;display:flex;align-items:center;justify-content:space-between;';
+    div.innerHTML = `
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#1c1c1e;">${m.name}</div>
+        <div style="font-size:13px;color:#8e8e93;">${m.calories} kcal · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div>
+      </div>
+      <button onclick="deleteMeal(${i})" style="background:none;border:none;font-size:18px;color:#ff3b30;cursor:pointer;">✕</button>`;
+    container.appendChild(div);
+  });
+}
+function deleteMeal(i){ meals.splice(i,1); saveMeals(); renderMeals(); updateDashboardCalories(); }
+
+// Meal add form submission
+(function(){
+  const addBtn = document.getElementById('meal-add-btn');
+  if(!addBtn) return;
+  addBtn.addEventListener('click', function(){
+    const name     = document.getElementById('meal-name-input')?.value || 'Meal';
+    const calories = parseInt(document.getElementById('meal-cal-input')?.value)   || 0;
+    const protein  = parseInt(document.getElementById('meal-prot-input')?.value)  || 0;
+    const carbs    = parseInt(document.getElementById('meal-carbs-input')?.value) || 0;
+    const fat      = parseInt(document.getElementById('meal-fat-input')?.value)   || 0;
+    if(!name || name==='Meal' && !calories) return;
+    meals.push({ name, calories, protein, carbs, fat, date: new Date().toDateString() });
+    saveMeals();
+    renderMeals();
+    updateDashboardCalories();
+    closeMealModal();
+  });
+})();
+
+function updateDashboardCalories(){
+  const today = new Date().toDateString();
+  const todayMeals = meals.filter(m => m.date === today);
+  const consumed  = todayMeals.reduce((s,m) => s + (m.calories||0), 0);
+  const totalProt = todayMeals.reduce((s,m) => s + (m.protein||0),  0);
+  const totalCarb = todayMeals.reduce((s,m) => s + (m.carbs||0),    0);
+  const totalFat  = todayMeals.reduce((s,m) => s + (m.fat||0),      0);
+  const calGoal=2151, protGoal=74, fatGoal=71, carbGoal=302;
+  const left = Math.max(calGoal - consumed, 0);
+  const g = id => document.getElementById(id);
+
+  // Dashboard ring
+  const ringNum = document.querySelector('.ring-num');
+  if(ringNum) ringNum.textContent = left.toLocaleString();
+  const ringFill = g('dash-ring-fill');
+  if(ringFill){
+    const pct = Math.min(consumed/calGoal, 1);
+    ringFill.setAttribute('stroke-dashoffset', (276.4*(1-pct)).toFixed(1));
+  }
+  // Dashboard macro bars
+  const pp = Math.min((totalProt/protGoal)*100, 100);
+  const fp = Math.min((totalFat/fatGoal)*100,   100);
+  const cp = Math.min((totalCarb/carbGoal)*100, 100);
+  if(g('dash-prot-bar')) g('dash-prot-bar').style.width = pp+'%';
+  if(g('dash-fat-bar'))  g('dash-fat-bar').style.width  = fp+'%';
+  if(g('dash-carb-bar')) g('dash-carb-bar').style.width = cp+'%';
+  if(g('dash-prot-val')) g('dash-prot-val').textContent = totalProt+' / '+protGoal+'g';
+  if(g('dash-fat-val'))  g('dash-fat-val').textContent  = totalFat+' / '+fatGoal+'g';
+  if(g('dash-carb-val')) g('dash-carb-val').textContent = totalCarb+' / '+carbGoal+'g';
+  if(g('dash-consumed'))  g('dash-consumed').textContent  = consumed.toLocaleString();
+  if(g('dash-remaining')) g('dash-remaining').textContent = left.toLocaleString();
+
+  // Nutrition today
+  const calPct = Math.min(Math.round((consumed/calGoal)*100), 100);
+  if(g('nutr-cal-fill')) g('nutr-cal-fill').style.width = calPct+'%';
+  if(g('nutr-cal-txt'))  g('nutr-cal-txt').textContent  = consumed+' / '+calGoal+' kcal';
+  if(g('nutr-cal-pct'))  g('nutr-cal-pct').textContent  = calPct+'%';
+  if(g('nutr-prot-fill')) g('nutr-prot-fill').style.width = Math.round(pp)+'%';
+  if(g('nutr-prot-txt'))  g('nutr-prot-txt').textContent  = totalProt+' / '+protGoal+' g';
+  if(g('nutr-prot-pct'))  g('nutr-prot-pct').textContent  = Math.round(pp)+'%';
+  if(g('nutr-fat-fill')) g('nutr-fat-fill').style.width = Math.round(fp)+'%';
+  if(g('nutr-fat-txt'))  g('nutr-fat-txt').textContent  = totalFat+' / '+fatGoal+' g';
+  if(g('nutr-fat-pct'))  g('nutr-fat-pct').textContent  = Math.round(fp)+'%';
+  if(g('nutr-carb-fill')) g('nutr-carb-fill').style.width = Math.round(cp)+'%';
+  if(g('nutr-carb-txt'))  g('nutr-carb-txt').textContent  = totalCarb+' / '+carbGoal+' g';
+  if(g('nutr-carb-pct'))  g('nutr-carb-pct').textContent  = Math.round(cp)+'%';
+}
+
+// ── Workout set logging persistence ──────
+let workoutLog = DB.get('workout_log', {});
+function saveWorkout(){ DB.set('workout_log', workoutLog); }
+
+function logSet(exercise, setIdx, weight, reps){
+  const today = new Date().toDateString();
+  if(!workoutLog[today]) workoutLog[today] = {};
+  if(!workoutLog[today][exercise]) workoutLog[today][exercise] = [];
+  workoutLog[today][exercise][setIdx] = { weight, reps, ts: Date.now() };
+  saveWorkout();
+}
+
+// Attach live logging to all workout input cells
+function attachWorkoutInputs(){
+  document.querySelectorAll('.set-row').forEach(row => {
+    const exercise = row.closest('.ex-card')?.querySelector('.ex-name')?.textContent || 'Unknown';
+    const setIdx   = parseInt(row.dataset.setIdx || 0);
+    const weightIn = row.querySelector('.set-weight');
+    const repsIn   = row.querySelector('.set-reps');
+    if(!weightIn || !repsIn) return;
+
+    // Restore saved value
+    const today = new Date().toDateString();
+    const saved = workoutLog[today]?.[exercise]?.[setIdx];
+    if(saved){ weightIn.value = saved.weight; repsIn.value = saved.reps; }
+
+    const save = () => logSet(exercise, setIdx, weightIn.value, repsIn.value);
+    weightIn.addEventListener('change', save);
+    repsIn.addEventListener('change', save);
+  });
+}
+
+// ── Body metrics persistence ─────────────
+function saveBodyMetric(metric, value){
+  const history = DB.get('metric_'+metric, []);
+  history.push({ val: value, date: new Date().toDateString(), ts: Date.now() });
+  if(history.length > 365) history.shift();
+  DB.set('metric_'+metric, history);
+  // Update dashboard display
+  if(metricData[metric]) metricData[metric].current = value + (metric === 'Weight' ? ' kg' :
+    metric === 'Body Fat' ? ' %' : ' cm');
+}
+
+
+// ════════════════════════════════════════
+//  Service Worker Registration
+// ════════════════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ════════════════════════════════════════
+//  INIT  — restore all saved data on load
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function(){
+  loadSettings();
+  renderWater();
+  renderMeals();
+  attachWorkoutInputs();
+  updateDashboardCalories();
+  // Show "Add to Home Screen" hint on iOS if not standalone
+  const isIOS  = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone;
+  if(isIOS && !isStandalone){
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1c1c1e;color:#fff;padding:14px 20px;font-size:13px;text-align:center;z-index:9999;border-radius:16px 16px 0 0;';
+    banner.innerHTML = `📲 <b>Fatih Fit</b>'yi kur: Safari → Paylaş (⬆) → <b>Ana Ekrana Ekle</b> <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8e8e93;font-size:16px;float:right;cursor:pointer;">✕</button>`;
+    document.body.appendChild(banner);
+  }
+});
+</script>
+
+</body>
+</html>

@@ -386,7 +386,7 @@ body{
 .tab-bar{
   background:rgba(249,249,251,.96);backdrop-filter:blur(24px);
   border-top:1px solid rgba(0,0,0,.07);
-  display:flex;padding:8px 0 22px;flex-shrink:0;z-index:150;
+  display:flex;padding:8px 0 10px;flex-shrink:0;z-index:150;
 }
 .tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
   cursor:pointer;padding:3px 0;border:none;background:none;outline:none}
@@ -397,6 +397,12 @@ body{
 
 /* spacing */
 .sp8{height:8px}.sp16{height:16px}
+
+/* ═══ Modals ═══ */
+.mod-bg{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:flex-end;}
+.mod-bg.open,.mod-bg.active{display:flex;}
+.mod-sheet{width:100%;background:#fff;max-height:85%;overflow-y:auto;scrollbar-width:none;}
+.mod-sheet::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -425,7 +431,6 @@ body{
           <div class="ph-greet">Sunday, March 15</div>
           <div class="ph-name">Hey, Fatih 👋</div>
         </div>
-        <div class="notif">🔔<div class="badge">2</div></div>
       </div>
 
       <!-- 1. CALORIES SUMMARY CARD -->
@@ -437,32 +442,32 @@ body{
             <svg width="108" height="108" viewBox="0 0 108 108">
               <circle cx="54" cy="54" r="44" fill="none" stroke="#e5e5ea" stroke-width="9"/>
               <circle cx="54" cy="54" r="44" fill="none" stroke="#4a90d9" stroke-width="9"
-                stroke-dasharray="276.4" stroke-dashoffset="160" stroke-linecap="round"/>
+                stroke-dasharray="276.4" stroke-dashoffset="276.4" stroke-linecap="round" id="dash-ring-fill"/>
             </svg>
             <div class="ring-center">
-              <div class="ring-num">1,244</div>
+              <div class="ring-num" id="dash-cal-left">2,151</div>
               <div class="ring-sub">kcal left</div>
             </div>
           </div>
           <!-- Macro bars -->
           <div class="cal-macros">
             <div class="cm-row">
-              <div class="cm-top"><span class="cm-name">Protein</span><span class="cm-val">55 / 74g</span></div>
-              <div class="cm-bar"><div class="cm-fill tk-red" style="width:75%;height:100%"></div></div>
+              <div class="cm-top"><span class="cm-name">Protein</span><span class="cm-val" id="dash-prot-val">0 / 74g</span></div>
+              <div class="cm-bar"><div class="cm-fill tk-red" id="dash-prot-bar" style="width:0%;height:100%"></div></div>
             </div>
             <div class="cm-row">
-              <div class="cm-top"><span class="cm-name">Fat</span><span class="cm-val">45 / 71g</span></div>
-              <div class="cm-bar"><div class="cm-fill tk-amber" style="width:64%;height:100%"></div></div>
+              <div class="cm-top"><span class="cm-name">Fat</span><span class="cm-val" id="dash-fat-val">0 / 71g</span></div>
+              <div class="cm-bar"><div class="cm-fill tk-amber" id="dash-fat-bar" style="width:0%;height:100%"></div></div>
             </div>
             <div class="cm-row">
-              <div class="cm-top"><span class="cm-name">Carbs</span><span class="cm-val">48 / 302g</span></div>
-              <div class="cm-bar"><div class="cm-fill tk-green" style="width:16%;height:100%"></div></div>
+              <div class="cm-top"><span class="cm-name">Carbs</span><span class="cm-val" id="dash-carb-val">0 / 302g</span></div>
+              <div class="cm-bar"><div class="cm-fill tk-green" id="dash-carb-bar" style="width:0%;height:100%"></div></div>
             </div>
           </div>
         </div>
         <div class="cal-bottom">
-          <div class="cbs"><div class="cbs-num">907</div><div class="cbs-lbl">Consumed</div></div>
-          <div class="cbs"><div class="cbs-num" style="color:#4a90d9">1,244</div><div class="cbs-lbl">Remaining</div></div>
+          <div class="cbs"><div class="cbs-num" id="dash-consumed">0</div><div class="cbs-lbl">Consumed</div></div>
+          <div class="cbs"><div class="cbs-num" style="color:#4a90d9" id="dash-remaining">2,151</div><div class="cbs-lbl">Remaining</div></div>
           <div class="cbs"><div class="cbs-num">2,151</div><div class="cbs-lbl">Target</div></div>
         </div>
       </div>
@@ -668,12 +673,12 @@ body{
           <div class="pr-row">
             <span class="pr-name" style="font-size:15px">Calories</span>
             <div class="pr-right">
-              <span class="pr-txt">907 / 2,151 kcal</span>
-              <span class="pr-pct" style="color:#4a90d9">42%</span>
+              <span class="pr-txt" id="nutr-cal-txt">0 / 2,151 kcal</span>
+              <span class="pr-pct" id="nutr-cal-pct" style="color:#4a90d9">0%</span>
             </div>
           </div>
           <div class="pr-track">
-            <div class="pr-fill tk-blue" style="width:42%"></div>
+            <div class="pr-fill tk-blue" id="nutr-cal-fill" style="width:0%"></div>
             <div class="pr-marker" style="left:50%"></div>
           </div>
         </div>
@@ -683,19 +688,19 @@ body{
           <div class="nutr-section" style="font-size:17px">Macros</div>
           <div class="pr-row">
             <span class="pr-name">Protein</span>
-            <div class="pr-right"><span class="pr-txt">55.4 / 74 g</span><span class="pr-pct" style="color:#ff6b6b">75%</span></div>
+            <div class="pr-right"><span class="pr-txt" id="nutr-prot-txt">0 / 74 g</span><span class="pr-pct" id="nutr-prot-pct" style="color:#ff6b6b">0%</span></div>
           </div>
-          <div class="pr-track"><div class="pr-fill tk-red" style="width:75%"></div><div class="pr-marker" style="left:50%"></div></div>
+          <div class="pr-track"><div class="pr-fill tk-red" id="nutr-prot-fill" style="width:0%"></div><div class="pr-marker" style="left:50%"></div></div>
           <div class="pr-row">
             <span class="pr-name">Fat</span>
-            <div class="pr-right"><span class="pr-txt">45.2 / 71 g</span><span class="pr-pct" style="color:#f5a623">64%</span></div>
+            <div class="pr-right"><span class="pr-txt" id="nutr-fat-txt">0 / 71 g</span><span class="pr-pct" id="nutr-fat-pct" style="color:#f5a623">0%</span></div>
           </div>
-          <div class="pr-track"><div class="pr-fill tk-amber" style="width:64%"></div><div class="pr-marker" style="left:50%"></div></div>
+          <div class="pr-track"><div class="pr-fill tk-amber" id="nutr-fat-fill" style="width:0%"></div><div class="pr-marker" style="left:50%"></div></div>
           <div class="pr-row">
             <span class="pr-name">Carbs</span>
-            <div class="pr-right"><span class="pr-txt">48.4 / 302 g</span><span class="pr-pct" style="color:#34c759">16%</span></div>
+            <div class="pr-right"><span class="pr-txt" id="nutr-carb-txt">0 / 302 g</span><span class="pr-pct" id="nutr-carb-pct" style="color:#34c759">0%</span></div>
           </div>
-          <div class="pr-track" style="margin-bottom:0"><div class="pr-fill tk-green" style="width:16%"></div><div class="pr-marker" style="left:50%"></div></div>
+          <div class="pr-track" style="margin-bottom:0"><div class="pr-fill tk-green" id="nutr-carb-fill" style="width:0%"></div><div class="pr-marker" style="left:50%"></div></div>
         </div>
 
         <!-- Water card -->
@@ -703,12 +708,12 @@ body{
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div>
               <div style="font-size:17px;font-weight:700;color:#1c1c1e">Water 💧</div>
-              <div style="font-size:13px;color:#8e8e93;margin-top:2px">1.4 / 2.5 L · 56%</div>
+              <div id="water-display" style="font-size:13px;color:#8e8e93;margin-top:2px">0.0 / 2.5 L</div>
             </div>
-            <div style="background:#e0f5ff;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;color:#5ac8fa;cursor:pointer">+ Glass</div>
+            <div onclick="addGlass()" style="background:#e0f5ff;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;color:#5ac8fa;cursor:pointer;user-select:none">+ Glass</div>
           </div>
           <div class="pr-track" style="height:8px;background:#e0f5ff;margin-bottom:0">
-            <div class="pr-fill tk-teal" style="width:56%;height:8px"></div>
+            <div id="water-bar" class="pr-fill tk-teal" style="width:0%;height:8px;transition:width 0.3s ease"></div>
           </div>
         </div>
 
@@ -716,22 +721,11 @@ body{
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <div style="font-size:17px;font-weight:700;color:#1c1c1e">Today's Meals</div>
-            <div style="font-size:13px;color:#4a90d9;font-weight:600;cursor:pointer">See All →</div>
+            <div onclick="openMealModal()" style="font-size:13px;color:#4a90d9;font-weight:600;cursor:pointer">+ Add Meal</div>
           </div>
-          <div class="meal-item">
-            <div class="mi-left"><div class="mi-name">Breakfast</div><div class="mi-sub">3 items</div></div>
-            <div class="mi-right"><div class="mi-kcal">387 kcal</div><div class="mi-macros">P: 28g · F: 18g · C: 24g</div></div>
-          </div>
-          <div class="meal-item">
-            <div class="mi-left"><div class="mi-name">Lunch · Chipotle</div><div class="mi-sub">1 item · BPN shake</div></div>
-            <div class="mi-right"><div class="mi-kcal">520 kcal</div><div class="mi-macros">P: 27g · F: 27g · C: 24g</div></div>
-          </div>
-          <div class="meal-item mi-empty">
-            <div class="mi-left"><div class="mi-name">Dinner</div><div class="mi-sub">Not logged yet</div></div>
-            <div class="mi-right" style="font-size:22px;color:#c7c7cc">+</div>
-          </div>
-          <div class="meal-item mi-empty">
-            <div class="mi-left"><div class="mi-name">Snacks</div><div class="mi-sub">Not logged yet</div></div>
+          <div id="meal-list-saved"></div>
+          <div class="meal-item mi-empty" onclick="openMealModal()" style="cursor:pointer">
+            <div class="mi-left"><div class="mi-name">Log a meal</div><div class="mi-sub">Tap to add</div></div>
             <div class="mi-right" style="font-size:22px;color:#c7c7cc">+</div>
           </div>
         </div>
@@ -739,200 +733,40 @@ body{
 
       <!-- ── 1 WEEK VIEW ── -->
       <div id="nutr-week" style="display:none">
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:4px">Calories — Last 7 Days</div>
-          <div style="font-size:13px;color:#8e8e93;margin-bottom:14px">Avg: 1,924 kcal/day · Target: 2,151</div>
-          <!-- Bar chart -->
-          <svg width="100%" viewBox="0 0 320 100" style="overflow:visible">
-            <defs><linearGradient id="barG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a90d9" stop-opacity="1"/><stop offset="100%" stop-color="#4a90d9" stop-opacity=".6"/></linearGradient></defs>
-            <!-- Target line -->
-            <line x1="0" y1="10" x2="320" y2="10" stroke="#e5e5ea" stroke-width="1.5" stroke-dasharray="4,3"/>
-            <text x="316" y="8" font-size="9" fill="#c7c7cc" text-anchor="end">Target</text>
-            <!-- Bars: Mon=78%, Tue=95%, Wed=55%, Thu=102%, Fri=88%, Sat=40%, Sun(today)=42% -->
-            <rect x="4"   y="28" width="34" height="62" rx="6" fill="url(#barG)"/>
-            <rect x="50"  y="14" width="34" height="76" rx="6" fill="url(#barG)"/>
-            <rect x="96"  y="40" width="34" height="50" rx="6" fill="url(#barG)"/>
-            <rect x="142" y="8"  width="34" height="82" rx="6" fill="url(#barG)" opacity=".5"/><rect x="142" y="8" width="34" height="82" rx="6" fill="none" stroke="#ff6b6b" stroke-width="1.5"/>
-            <rect x="188" y="20" width="34" height="70" rx="6" fill="url(#barG)"/>
-            <rect x="234" y="56" width="34" height="34" rx="6" fill="#e5e5ea"/>
-            <rect x="280" y="54" width="34" height="36" rx="6" fill="#4a90d9" opacity=".4"/>
-            <!-- Labels -->
-            <text x="21"  y="98" font-size="9" fill="#8e8e93" text-anchor="middle">Mon</text>
-            <text x="67"  y="98" font-size="9" fill="#8e8e93" text-anchor="middle">Tue</text>
-            <text x="113" y="98" font-size="9" fill="#8e8e93" text-anchor="middle">Wed</text>
-            <text x="159" y="98" font-size="9" fill="#ff6b6b" text-anchor="middle" font-weight="600">Thu</text>
-            <text x="205" y="98" font-size="9" fill="#8e8e93" text-anchor="middle">Fri</text>
-            <text x="251" y="98" font-size="9" fill="#8e8e93" text-anchor="middle">Sat</text>
-            <text x="297" y="98" font-size="9" fill="#4a90d9" text-anchor="middle" font-weight="600">Today</text>
-          </svg>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;font-size:11px;color:#8e8e93">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#4a90d9;border-radius:2px;display:inline-block"></span>Under target</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border:1.5px solid #ff6b6b;border-radius:2px;display:inline-block"></span>Over target</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#e5e5ea;border-radius:2px;display:inline-block"></span>Not logged</span>
-          </div>
-        </div>
-        <!-- Weekly macro averages -->
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:14px">Weekly Macro Averages</div>
-          <div class="pr-row"><span class="pr-name">Protein</span><div class="pr-right"><span class="pr-txt">Avg 61 / 74 g</span><span class="pr-pct" style="color:#ff6b6b">82%</span></div></div>
-          <div class="pr-track"><div class="pr-fill tk-red" style="width:82%"></div></div>
-          <div class="pr-row"><span class="pr-name">Fat</span><div class="pr-right"><span class="pr-txt">Avg 52 / 71 g</span><span class="pr-pct" style="color:#f5a623">73%</span></div></div>
-          <div class="pr-track"><div class="pr-fill tk-amber" style="width:73%"></div></div>
-          <div class="pr-row"><span class="pr-name">Carbs</span><div class="pr-right"><span class="pr-txt">Avg 210 / 302 g</span><span class="pr-pct" style="color:#34c759">70%</span></div></div>
-          <div class="pr-track" style="margin-bottom:0"><div class="pr-fill tk-green" style="width:70%"></div></div>
-        </div>
-        <!-- Streak -->
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><div style="font-size:17px;font-weight:700;color:#1c1c1e">Logging Streak 🔥</div><div style="font-size:13px;color:#8e8e93;margin-top:2px">Days fully logged this week</div></div>
-            <div style="font-size:36px;font-weight:700;color:#ff9500">5<span style="font-size:14px;color:#8e8e93;font-weight:500"> / 7</span></div>
-          </div>
-          <div style="display:flex;gap:6px;margin-top:12px">
-            <div style="flex:1;height:6px;border-radius:3px;background:#34c759"></div>
-            <div style="flex:1;height:6px;border-radius:3px;background:#34c759"></div>
-            <div style="flex:1;height:6px;border-radius:3px;background:#34c759"></div>
-            <div style="flex:1;height:6px;border-radius:3px;background:#34c759"></div>
-            <div style="flex:1;height:6px;border-radius:3px;background:#34c759"></div>
-            <div style="flex:1;height:6px;border-radius:3px;background:#e5e5ea"></div>
-            <div style="flex:1;height:6px;border-radius:3px;background:#4a90d9;opacity:.4"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:#c7c7cc">
-            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span style="color:#4a90d9">Today</span>
-          </div>
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">📊</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">Günlük yemek kaydı yaparak haftalık trendlerini görmeye başla.</div>
         </div>
       </div><!-- end nutr-week -->
 
       <!-- ── 1 MONTH VIEW ── -->
       <div id="nutr-month" style="display:none">
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:4px">Calories — Last 30 Days</div>
-          <div style="font-size:13px;color:#8e8e93;margin-bottom:14px">Avg: 1,987 kcal/day · Best streak: 12 days</div>
-          <svg width="100%" viewBox="0 0 320 90" style="overflow:visible">
-            <defs><linearGradient id="areaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a90d9" stop-opacity=".25"/><stop offset="100%" stop-color="#4a90d9" stop-opacity="0"/></linearGradient></defs>
-            <line x1="0" y1="12" x2="320" y2="12" stroke="#e5e5ea" stroke-width="1" stroke-dasharray="3,3"/>
-            <path d="M0,55 C20,52 30,45 50,48 C70,51 80,35 100,30 C120,25 130,40 150,38 C170,36 180,28 200,25 C220,22 230,35 250,32 C270,29 285,42 300,38 C310,35 315,50 320,55 L320,85 L0,85Z" fill="url(#areaG)"/>
-            <path d="M0,55 C20,52 30,45 50,48 C70,51 80,35 100,30 C120,25 130,40 150,38 C170,36 180,28 200,25 C220,22 230,35 250,32 C270,29 285,42 300,38 C310,35 315,50 320,55" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="320" cy="55" r="4" fill="#4a90d9"/>
-            <text x="0"   y="88" font-size="9" fill="#c7c7cc">Mar 1</text>
-            <text x="148" y="88" font-size="9" fill="#c7c7cc" text-anchor="middle">Mar 15</text>
-            <text x="316" y="88" font-size="9" fill="#4a90d9" text-anchor="end">Today</text>
-          </svg>
-        </div>
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:14px">Monthly Summary</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Avg Calories</div>
-              <div style="font-size:22px;font-weight:700;color:#1c1c1e">1,987</div>
-              <div style="font-size:11px;color:#34c759;font-weight:600">▼ 164 vs target</div>
-            </div>
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Avg Protein</div>
-              <div style="font-size:22px;font-weight:700;color:#ff6b6b">63g</div>
-              <div style="font-size:11px;color:#ff6b6b;font-weight:600">85% of goal</div>
-            </div>
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Days Logged</div>
-              <div style="font-size:22px;font-weight:700;color:#1c1c1e">12<span style="font-size:14px;color:#8e8e93"> / 15</span></div>
-              <div style="font-size:11px;color:#34c759;font-weight:600">80% consistency</div>
-            </div>
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Avg Carbs</div>
-              <div style="font-size:22px;font-weight:700;color:#34c759">198g</div>
-              <div style="font-size:11px;color:#34c759;font-weight:600">66% of goal</div>
-            </div>
-          </div>
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">📅</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">Aylık trendleri görmek için yemek kaydetmeye devam et.</div>
         </div>
       </div><!-- end nutr-month -->
 
       <!-- ── 3 MONTHS VIEW ── -->
       <div id="nutr-3month" style="display:none">
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:4px">Calories — Last 3 Months</div>
-          <div style="font-size:13px;color:#8e8e93;margin-bottom:14px">Jan · Feb · Mar weekly averages</div>
-          <svg width="100%" viewBox="0 0 320 90" style="overflow:visible">
-            <defs><linearGradient id="areaG3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a90d9" stop-opacity=".2"/><stop offset="100%" stop-color="#4a90d9" stop-opacity="0"/></linearGradient></defs>
-            <line x1="0" y1="12" x2="320" y2="12" stroke="#e5e5ea" stroke-width="1" stroke-dasharray="3,3"/>
-            <!-- Jan: higher, Feb: coming down, Mar: on target -->
-            <path d="M0,30 C20,32 40,28 60,35 C80,42 100,38 120,42 C140,46 160,50 180,52 C200,54 220,50 240,48 C260,46 280,52 300,55 C310,57 315,58 320,60 L320,85 L0,85Z" fill="url(#areaG3)"/>
-            <path d="M0,30 C20,32 40,28 60,35 C80,42 100,38 120,42 C140,46 160,50 180,52 C200,54 220,50 240,48 C260,46 280,52 300,55 C310,57 315,58 320,60" fill="none" stroke="#4a90d9" stroke-width="2"/>
-            <!-- Month separators -->
-            <line x1="107" y1="0" x2="107" y2="80" stroke="#e5e5ea" stroke-width="1" stroke-dasharray="2,2"/>
-            <line x1="213" y1="0" x2="213" y2="80" stroke="#e5e5ea" stroke-width="1" stroke-dasharray="2,2"/>
-            <text x="54"  y="88" font-size="9" fill="#c7c7cc" text-anchor="middle">January</text>
-            <text x="160" y="88" font-size="9" fill="#c7c7cc" text-anchor="middle">February</text>
-            <text x="267" y="88" font-size="9" fill="#4a90d9" text-anchor="middle">March</text>
-          </svg>
-        </div>
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:14px">3-Month Trend</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:#f9f9fb;border-radius:12px">
-              <div><div style="font-size:13px;font-weight:600;color:#1c1c1e">January avg</div><div style="font-size:11px;color:#8e8e93">Surplus period</div></div>
-              <div style="font-size:16px;font-weight:700;color:#ff6b6b">2,340 kcal</div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:#f9f9fb;border-radius:12px">
-              <div><div style="font-size:13px;font-weight:600;color:#1c1c1e">February avg</div><div style="font-size:11px;color:#8e8e93">Cut phase started</div></div>
-              <div style="font-size:16px;font-weight:700;color:#f5a623">2,105 kcal</div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:#e7f8ed;border-radius:12px;border:1px solid #34c75922">
-              <div><div style="font-size:13px;font-weight:600;color:#1c1c1e">March so far</div><div style="font-size:11px;color:#8e8e93">On track ✓</div></div>
-              <div style="font-size:16px;font-weight:700;color:#34c759">1,987 kcal</div>
-            </div>
-          </div>
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">📈</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">3 aylık trendleri görmek için daha fazla veri gerekiyor.</div>
         </div>
       </div><!-- end nutr-3month -->
 
       <!-- ── 1 YEAR VIEW ── -->
       <div id="nutr-year" style="display:none">
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:4px">Calories — Last 12 Months</div>
-          <div style="font-size:13px;color:#8e8e93;margin-bottom:14px">Monthly averages · 2024–2025</div>
-          <svg width="100%" viewBox="0 0 320 90" style="overflow:visible">
-            <defs><linearGradient id="areaGY" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a90d9" stop-opacity=".18"/><stop offset="100%" stop-color="#4a90d9" stop-opacity="0"/></linearGradient></defs>
-            <line x1="0" y1="12" x2="320" y2="12" stroke="#e5e5ea" stroke-width="1" stroke-dasharray="3,3"/>
-            <path d="M0,45 L26,42 L53,38 L80,50 L107,55 L134,48 L161,40 L188,35 L215,30 L242,38 L269,32 L296,60 L320,58 L320,85 L0,85Z" fill="url(#areaGY)"/>
-            <path d="M0,45 L26,42 L53,38 L80,50 L107,55 L134,48 L161,40 L188,35 L215,30 L242,38 L269,32 L296,60 L320,58" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="320" cy="58" r="4" fill="#4a90d9"/>
-            <!-- Month labels -->
-            <text x="0"   y="88" font-size="8" fill="#c7c7cc">Apr</text>
-            <text x="53"  y="88" font-size="8" fill="#c7c7cc" text-anchor="middle">Jun</text>
-            <text x="107" y="88" font-size="8" fill="#c7c7cc" text-anchor="middle">Aug</text>
-            <text x="161" y="88" font-size="8" fill="#c7c7cc" text-anchor="middle">Oct</text>
-            <text x="215" y="88" font-size="8" fill="#c7c7cc" text-anchor="middle">Dec</text>
-            <text x="269" y="88" font-size="8" fill="#c7c7cc" text-anchor="middle">Feb</text>
-            <text x="316" y="88" font-size="8" fill="#4a90d9" text-anchor="end">Mar</text>
-          </svg>
-        </div>
-        <div class="card">
-          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:14px">Annual Summary</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Annual Avg</div>
-              <div style="font-size:22px;font-weight:700;color:#1c1c1e">2,088</div>
-              <div style="font-size:11px;color:#8e8e93">kcal / day</div>
-            </div>
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Best Month</div>
-              <div style="font-size:22px;font-weight:700;color:#34c759">Dec</div>
-              <div style="font-size:11px;color:#8e8e93">94% consistency</div>
-            </div>
-            <div style="background:#f9f9fb;border-radius:12px;padding:12px">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Total Days Logged</div>
-              <div style="font-size:22px;font-weight:700;color:#1c1c1e">287</div>
-              <div style="font-size:11px;color:#34c759;font-weight:600">79% of year</div>
-            </div>
-            <div style="background:#e7f8ed;border-radius:12px;padding:12px;border:1px solid #34c75922">
-              <div style="font-size:11px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Weight Change</div>
-              <div style="font-size:22px;font-weight:700;color:#34c759">-5.2 kg</div>
-              <div style="font-size:11px;color:#34c759;font-weight:600">Over 12 months</div>
-            </div>
-          </div>
+        <div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">🗓️</div>
+          <div style="font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Henüz veri yok</div>
+          <div style="font-size:14px;color:#8e8e93">Yıllık trendleri görmek için daha fazla veri gerekiyor.</div>
         </div>
       </div><!-- end nutr-year -->
 
-      <!-- Floating + FAB (always visible on nutrition tab) -->
-      <button class="fab-abs" id="nutr-fab">+</button>
 
     </div><!-- end nutrition -->
 
@@ -944,7 +778,7 @@ body{
           <h1>Workout</h1>
           <span class="wh-badge">PPL Program · Week 6</span>
         </div>
-        <button class="wh-btn">+ New</button>
+        <button class="wh-btn" onclick="openNewWorkoutModal()">+ New</button>
       </div>
 
       <!-- Day tabs (underline style, MacroFactor-inspired) -->
@@ -1122,7 +956,6 @@ body{
 
       <div class="settings-header">
         <h1>Settings</h1>
-        <button class="wh-btn">Edit</button>
       </div>
 
       <!-- Profile -->
@@ -1141,8 +974,8 @@ body{
         <div class="set-group">
           <div class="set-row"><div class="si" style="background:#e8f2ff">📏</div><div class="sl">Age</div><input class="sv-inp" type="number" value="33"><div class="sa">›</div></div>
           <div class="set-row"><div class="si" style="background:#e8f2ff">📐</div><div class="sl">Height</div><input class="sv-inp" type="number" value="181" style="width:55px"><span style="font-size:13px;color:#8e8e93;margin-right:3px">cm</span><div class="sa">›</div></div>
+          <div class="set-row"><div class="si" style="background:#e8f2ff">⚖️</div><div class="sl">Weight</div><input class="sv-inp" type="number" step="0.1" id="s-weight" placeholder="—" style="width:55px"><span style="font-size:13px;color:#8e8e93;margin-right:3px">kg</span><div class="sa">›</div></div>
           <div class="set-row"><div class="si" style="background:#f0e8ff">🧬</div><div class="sl">Gender</div><div class="sv">Male</div><div class="sa">›</div></div>
-          <div class="set-row"><div class="si" style="background:#fff3e0">🎯</div><div class="sl">Goal</div><div class="sv">Fat Loss</div><div class="sa">›</div></div>
         </div>
       </div>
       <div class="sp8"></div>
@@ -1172,11 +1005,11 @@ body{
               <div class="pf-chev" id="pfc-push">›</div>
             </div>
             <div class="pf-body" id="pfb-push">
-              <div class="pf-ex"><div class="pf-ex-n">Bench Press</div><div class="pf-ex-s">4×8</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Overhead Press</div><div class="pf-ex-s">4×8</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Incline DB Press</div><div class="pf-ex-s">3×10</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Tricep Pushdown</div><div class="pf-ex-s">3×12</div><button class="pf-del">✕</button></div>
-              <button class="pf-add">＋ Add / Remove exercise</button>
+              <div class="pf-ex"><div class="pf-ex-n">Bench Press</div><div class="pf-ex-s">4×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Overhead Press</div><div class="pf-ex-s">4×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Incline DB Press</div><div class="pf-ex-s">3×10</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Tricep Pushdown</div><div class="pf-ex-s">3×12</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
             </div>
           </div>
 
@@ -1188,11 +1021,11 @@ body{
               <div class="pf-chev o" id="pfc-pull">›</div>
             </div>
             <div class="pf-body o" id="pfb-pull">
-              <div class="pf-ex"><div class="pf-ex-n">Deadlift</div><div class="pf-ex-s">4×5</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Pull-up (Weighted)</div><div class="pf-ex-s">3×8</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Barbell Row</div><div class="pf-ex-s">3×8</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Bicep Curl</div><div class="pf-ex-s">3×12</div><button class="pf-del">✕</button></div>
-              <button class="pf-add">＋ Add / Remove exercise</button>
+              <div class="pf-ex"><div class="pf-ex-n">Deadlift</div><div class="pf-ex-s">4×5</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Pull-up (Weighted)</div><div class="pf-ex-s">3×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Barbell Row</div><div class="pf-ex-s">3×8</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Bicep Curl</div><div class="pf-ex-s">3×12</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
             </div>
           </div>
 
@@ -1204,11 +1037,11 @@ body{
               <div class="pf-chev" id="pfc-legs">›</div>
             </div>
             <div class="pf-body" id="pfb-legs">
-              <div class="pf-ex"><div class="pf-ex-n">Back Squat</div><div class="pf-ex-s">4×6</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Romanian DL</div><div class="pf-ex-s">3×10</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Leg Press</div><div class="pf-ex-s">3×12</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Calf Raise</div><div class="pf-ex-s">4×15</div><button class="pf-del">✕</button></div>
-              <button class="pf-add">＋ Add / Remove exercise</button>
+              <div class="pf-ex"><div class="pf-ex-n">Back Squat</div><div class="pf-ex-s">4×6</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Romanian DL</div><div class="pf-ex-s">3×10</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Leg Press</div><div class="pf-ex-s">3×12</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Calf Raise</div><div class="pf-ex-s">4×15</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
             </div>
           </div>
 
@@ -1220,9 +1053,9 @@ body{
               <div class="pf-chev" id="pfc-card2">›</div>
             </div>
             <div class="pf-body" id="pfb-card2">
-              <div class="pf-ex"><div class="pf-ex-n">Stationary Bike</div><div class="pf-ex-s">30 min</div><button class="pf-del">✕</button></div>
-              <div class="pf-ex"><div class="pf-ex-n">Jump Rope</div><div class="pf-ex-s">15 min</div><button class="pf-del">✕</button></div>
-              <button class="pf-add">＋ Add / Remove exercise</button>
+              <div class="pf-ex"><div class="pf-ex-n">Stationary Bike</div><div class="pf-ex-s">30 min</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <div class="pf-ex"><div class="pf-ex-n">Jump Rope</div><div class="pf-ex-s">15 min</div><button class="pf-del" onclick="delEx(this)">✕</button></div>
+              <button class="pf-add" onclick="addEx(this)">＋ Add exercise</button>
             </div>
           </div>
 
@@ -1288,6 +1121,69 @@ body{
     </button>
   </div>
 
+  <!-- ═══ Meal Add Modal ═══ -->
+  <div class="mod-bg" id="mealModal" onclick="closeMealIfBg2(event)">
+    <div class="mod-sheet" style="border-radius:20px 20px 0 0;padding:24px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:19px;font-weight:700;color:#1c1c1e">Log Meal</div>
+        <button onclick="closeMealModal()" style="background:none;border:none;font-size:22px;color:#8e8e93;cursor:pointer;line-height:1">×</button>
+      </div>
+      <input id="meal-name-input" placeholder="Meal name (e.g. Chicken & Rice)" style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:inherit">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <input id="meal-cal-input" type="number" placeholder="Calories (kcal)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+        <input id="meal-prot-input" type="number" placeholder="Protein (g)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+        <input id="meal-carbs-input" type="number" placeholder="Carbs (g)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+        <input id="meal-fat-input" type="number" placeholder="Fat (g)" style="padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;box-sizing:border-box;outline:none;font-family:inherit">
+      </div>
+      <button id="meal-add-btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#4a90d9,#5a48e8);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit">Add Meal</button>
+    </div>
+  </div>
+
+  <!-- ═══ New Workout Modal ═══ -->
+  <div class="mod-bg" id="newWorkoutModal" onclick="closeNewWorkoutIfBg(event)">
+    <div class="mod-sheet" style="border-radius:20px 20px 0 0;padding:24px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:19px;font-weight:700;color:#1c1c1e">New Session</div>
+        <button onclick="closeNewWorkoutModal()" style="background:none;border:none;font-size:22px;color:#8e8e93;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div onclick="startWorkoutSession('Pull')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">🏋️</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Pull</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Back, Biceps</div>
+        </div>
+        <div onclick="startWorkoutSession('Push')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">💪</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Push</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Chest, Shoulders, Tris</div>
+        </div>
+        <div onclick="startWorkoutSession('Legs')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">🦵</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Legs</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Quads, Hams, Calves</div>
+        </div>
+        <div onclick="startWorkoutSession('Cardio')" style="background:#f2f2f7;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:background 0.2s">
+          <div style="font-size:22px;margin-bottom:6px">🏃</div>
+          <div style="font-size:14px;font-weight:700;color:#1c1c1e">Cardio</div>
+          <div style="font-size:12px;color:#8e8e93;margin-top:2px">Running, Cycling</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Add Exercise Modal ═══ -->
+  <div class="mod-bg" id="addExModal" onclick="closeAddExIfBg(event)">
+    <div class="mod-sheet" style="border-radius:20px 20px 0 0;padding:24px;position:relative">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:19px;font-weight:700;color:#1c1c1e">Add Exercise</div>
+        <button onclick="closeAddExModal()" style="background:none;border:none;font-size:22px;color:#8e8e93;cursor:pointer;line-height:1">×</button>
+      </div>
+      <input id="ex-name-input" placeholder="Exercise name" style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;margin-bottom:10px;box-sizing:border-box;outline:none;font-family:inherit">
+      <input id="ex-sets-input" placeholder="Sets × Reps (e.g. 4×8)" style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:12px;font-size:15px;margin-bottom:14px;box-sizing:border-box;outline:none;font-family:inherit">
+      <button id="ex-add-confirm-btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#4a90d9,#5a48e8);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit">Add to Program</button>
+    </div>
+  </div>
+
 </div><!-- end phone -->
 
 <script>
@@ -1305,8 +1201,8 @@ function goTab(name, btn){
 function goToWorkout(){
   goTab('workout', document.querySelectorAll('.tb')[2]);
 }
-// Initial fab visibility
-document.getElementById('nutr-fab').style.display='none';
+// Initial fab visibility (element removed, no-op)
+
 
 // ── Measurement Modal ──
 function openMeasModal(){document.getElementById('measModal').classList.add('open')}
@@ -1422,6 +1318,67 @@ function tglFolder(id){
   chev.classList.toggle('o');
 }
 
+// ── Meal modal ──
+let _addExTargetBody = null;
+function openMealModal(){
+  const m = document.getElementById('mealModal');
+  if(m) m.classList.add('open');
+}
+function closeMealModal(){
+  const m = document.getElementById('mealModal');
+  if(m) m.classList.remove('open');
+  ['meal-name-input','meal-cal-input','meal-prot-input','meal-carbs-input','meal-fat-input']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function closeMealIfBg2(e){ if(e.target===e.currentTarget) closeMealModal(); }
+
+// ── Exercise delete / add ──
+function delEx(btn){ btn.closest('.pf-ex').remove(); }
+function addEx(btn){
+  _addExTargetBody = btn.closest('.pf-body');
+  const m = document.getElementById('addExModal');
+  if(m){ m.style.display='flex'; setTimeout(()=>m.classList.add('active'),10); }
+  document.getElementById('ex-add-confirm-btn').onclick = confirmAddEx;
+}
+function closeAddExModal(){
+  const m = document.getElementById('addExModal');
+  if(m){ m.classList.remove('active'); setTimeout(()=>{ m.style.display='none'; }, 250); }
+  ['ex-name-input','ex-sets-input'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+}
+function closeAddExIfBg(e){ if(e.target===e.currentTarget) closeAddExModal(); }
+function confirmAddEx(){
+  const name = document.getElementById('ex-name-input').value.trim();
+  const sets = document.getElementById('ex-sets-input').value.trim() || '3×10';
+  if(!name){ document.getElementById('ex-name-input').focus(); return; }
+  if(_addExTargetBody){
+    const addBtn = _addExTargetBody.querySelector('.pf-add');
+    const row = document.createElement('div');
+    row.className='pf-ex';
+    row.innerHTML=`<div class="pf-ex-n">${name}</div><div class="pf-ex-s">${sets}</div><button class="pf-del" onclick="delEx(this)">✕</button>`;
+    if(addBtn) _addExTargetBody.insertBefore(row, addBtn);
+    else _addExTargetBody.appendChild(row);
+  }
+  closeAddExModal();
+}
+
+// ── New workout modal ──
+function openNewWorkoutModal(){
+  const m = document.getElementById('newWorkoutModal');
+  if(m){ m.style.display='flex'; setTimeout(()=>m.classList.add('active'),10); }
+}
+function closeNewWorkoutModal(){
+  const m = document.getElementById('newWorkoutModal');
+  if(m){ m.classList.remove('active'); setTimeout(()=>{ m.style.display='none'; }, 250); }
+}
+function closeNewWorkoutIfBg(e){ if(e.target===e.currentTarget) closeNewWorkoutModal(); }
+function startWorkoutSession(type){
+  closeNewWorkoutModal();
+  const workoutBtn = document.querySelector('.tb[onclick*="workout"]');
+  goTab('workout', workoutBtn);
+  const tabs = document.querySelectorAll('.ps-btn');
+  tabs.forEach(t=>{ if(t.textContent.trim()===type) t.click(); });
+}
+
 // ════════════════════════════════════════
 //  localStorage  DATA LAYER
 // ════════════════════════════════════════
@@ -1459,8 +1416,8 @@ function loadSettings(){
 }
 
 // Auto-save settings on any input change inside settings panel
-document.getElementById('settings').addEventListener('input', saveSettings);
-document.getElementById('settings').addEventListener('change', saveSettings);
+document.getElementById('p-settings').addEventListener('input', saveSettings);
+document.getElementById('p-settings').addEventListener('change', saveSettings);
 
 // ── Water intake persistence ─────────────
 let waterGlasses = DB.get('water_today', 0);
@@ -1518,7 +1475,7 @@ function deleteMeal(i){ meals.splice(i,1); saveMeals(); renderMeals(); updateDas
     const protein  = parseInt(document.getElementById('meal-prot-input')?.value)  || 0;
     const carbs    = parseInt(document.getElementById('meal-carbs-input')?.value) || 0;
     const fat      = parseInt(document.getElementById('meal-fat-input')?.value)   || 0;
-    if(!calories) return;
+    if(!name || name==='Meal' && !calories) return;
     meals.push({ name, calories, protein, carbs, fat, date: new Date().toDateString() });
     saveMeals();
     renderMeals();
@@ -1530,14 +1487,49 @@ function deleteMeal(i){ meals.splice(i,1); saveMeals(); renderMeals(); updateDas
 function updateDashboardCalories(){
   const today = new Date().toDateString();
   const todayMeals = meals.filter(m => m.date === today);
-  const totalCal  = todayMeals.reduce((s,m) => s + m.calories, 0);
-  const totalProt = todayMeals.reduce((s,m) => s + m.protein, 0);
-  const totalCarb = todayMeals.reduce((s,m) => s + m.carbs,   0);
-  const totalFat  = todayMeals.reduce((s,m) => s + m.fat,     0);
-  const goal = 2151;
-  const left = Math.max(goal - totalCal, 0);
-  const el = document.querySelector('.ring-num');
-  if(el) el.childNodes[0] && (el.childNodes[0].textContent = left);
+  const consumed  = todayMeals.reduce((s,m) => s + (m.calories||0), 0);
+  const totalProt = todayMeals.reduce((s,m) => s + (m.protein||0),  0);
+  const totalCarb = todayMeals.reduce((s,m) => s + (m.carbs||0),    0);
+  const totalFat  = todayMeals.reduce((s,m) => s + (m.fat||0),      0);
+  const calGoal=2151, protGoal=74, fatGoal=71, carbGoal=302;
+  const left = Math.max(calGoal - consumed, 0);
+  const g = id => document.getElementById(id);
+
+  // Dashboard ring
+  const ringNum = document.querySelector('.ring-num');
+  if(ringNum) ringNum.textContent = left.toLocaleString();
+  const ringFill = g('dash-ring-fill');
+  if(ringFill){
+    const pct = Math.min(consumed/calGoal, 1);
+    ringFill.setAttribute('stroke-dashoffset', (276.4*(1-pct)).toFixed(1));
+  }
+  // Dashboard macro bars
+  const pp = Math.min((totalProt/protGoal)*100, 100);
+  const fp = Math.min((totalFat/fatGoal)*100,   100);
+  const cp = Math.min((totalCarb/carbGoal)*100, 100);
+  if(g('dash-prot-bar')) g('dash-prot-bar').style.width = pp+'%';
+  if(g('dash-fat-bar'))  g('dash-fat-bar').style.width  = fp+'%';
+  if(g('dash-carb-bar')) g('dash-carb-bar').style.width = cp+'%';
+  if(g('dash-prot-val')) g('dash-prot-val').textContent = totalProt+' / '+protGoal+'g';
+  if(g('dash-fat-val'))  g('dash-fat-val').textContent  = totalFat+' / '+fatGoal+'g';
+  if(g('dash-carb-val')) g('dash-carb-val').textContent = totalCarb+' / '+carbGoal+'g';
+  if(g('dash-consumed'))  g('dash-consumed').textContent  = consumed.toLocaleString();
+  if(g('dash-remaining')) g('dash-remaining').textContent = left.toLocaleString();
+
+  // Nutrition today
+  const calPct = Math.min(Math.round((consumed/calGoal)*100), 100);
+  if(g('nutr-cal-fill')) g('nutr-cal-fill').style.width = calPct+'%';
+  if(g('nutr-cal-txt'))  g('nutr-cal-txt').textContent  = consumed+' / '+calGoal+' kcal';
+  if(g('nutr-cal-pct'))  g('nutr-cal-pct').textContent  = calPct+'%';
+  if(g('nutr-prot-fill')) g('nutr-prot-fill').style.width = Math.round(pp)+'%';
+  if(g('nutr-prot-txt'))  g('nutr-prot-txt').textContent  = totalProt+' / '+protGoal+' g';
+  if(g('nutr-prot-pct'))  g('nutr-prot-pct').textContent  = Math.round(pp)+'%';
+  if(g('nutr-fat-fill')) g('nutr-fat-fill').style.width = Math.round(fp)+'%';
+  if(g('nutr-fat-txt'))  g('nutr-fat-txt').textContent  = totalFat+' / '+fatGoal+' g';
+  if(g('nutr-fat-pct'))  g('nutr-fat-pct').textContent  = Math.round(fp)+'%';
+  if(g('nutr-carb-fill')) g('nutr-carb-fill').style.width = Math.round(cp)+'%';
+  if(g('nutr-carb-txt'))  g('nutr-carb-txt').textContent  = totalCarb+' / '+carbGoal+' g';
+  if(g('nutr-carb-pct'))  g('nutr-carb-pct').textContent  = Math.round(cp)+'%';
 }
 
 // ── Workout set logging persistence ──────
@@ -1583,24 +1575,6 @@ function saveBodyMetric(metric, value){
     metric === 'Body Fat' ? ' %' : ' cm');
 }
 
-// ── Meal modal helpers (if not already present) ──
-function openMealModal(){
-  const m = document.getElementById('mealModal');
-  if(m){ m.classList.add('open'); } else {
-    // Fallback: scroll to nutrition tab
-    switchTab(document.querySelector('[onclick*="nutrition"]'), 'nutrition');
-  }
-}
-function closeMealModal(){
-  const m = document.getElementById('mealModal');
-  if(m) m.classList.remove('open');
-}
-
-// ── FAB (Floating Add Button) in Nutrition ──
-(function(){
-  const fab = document.getElementById('nutr-fab');
-  if(fab) fab.addEventListener('click', openMealModal);
-})();
 
 // ════════════════════════════════════════
 //  Service Worker Registration
